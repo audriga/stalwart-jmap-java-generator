@@ -6,7 +6,7 @@
 
     <groupId>com.audriga</groupId>
     <artifactId>jmap-stalwart</artifactId>
-    <version>\@schema_version@</version>
+    <version>@(schemaVersion)</version>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>

@@ -1,4 +1,4 @@
-package com.audriga.stalwartgenerator;
+package com.audriga.stalwartgenerator.gson;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
@@ -11,7 +11,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 

@@ -1,4 +1,4 @@
-package com.audriga.stalwartgenerator;
+package com.audriga.stalwartgenerator.gson;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

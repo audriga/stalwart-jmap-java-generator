@@ -13,6 +13,5 @@ public class SchemaFetchTest {
                 InsecureX509TrustManager.HTTP_CLIENT,
                 HttpUrl.get("https://stalwart.luna.test"),
                 new BearerAuthHttpAuthentication("admin", "API_AAAAAQAAAAJNCmLgsT9TbFgq0wUacb1nM5iqQA"));
-
     }
 }

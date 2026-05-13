@@ -1,7 +1,7 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.ExternalType;
-import com.audriga.stalwartgenerator.TypeCaseFormat;
+import com.audriga.stalwartgenerator.gson.ExternalType;
+import com.audriga.stalwartgenerator.gson.TypeCaseFormat;
 import com.google.common.base.CaseFormat;
 import java.util.List;
 

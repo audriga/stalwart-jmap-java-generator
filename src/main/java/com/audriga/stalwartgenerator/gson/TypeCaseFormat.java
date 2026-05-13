@@ -1,4 +1,4 @@
-package com.audriga.stalwartgenerator;
+package com.audriga.stalwartgenerator.gson;
 
 import com.google.common.base.CaseFormat;
 

@@ -6,12 +6,7 @@ import com.google.common.io.MoreFiles;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.palantir.javapoet.AnnotationSpec;
-import com.palantir.javapoet.FieldSpec;
-import com.palantir.javapoet.JavaFile;
-import com.palantir.javapoet.TypeSpec;
-import lombok.Builder;
-import lombok.Getter;
+import com.palantir.javapoet.*;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -19,7 +14,6 @@ import org.jspecify.annotations.Nullable;
 import rs.ltt.jmap.client.http.HttpAuthentication;
 
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -85,42 +79,33 @@ public final class JmapStalwartGenerator {
                 """);
 
         var srcDir = config.baseDir().resolve("src", "main", "java");
+        var ctx = new Context(config.pkg());
+
         for (var fieldsEntry : schema.fields().entrySet()) {
             var className = fieldsEntry.getKey().replace("x:", "Stalwart");
             var fields = fieldsEntry.getValue();
+            var typeSpec = TypeSpec.recordBuilder(className);
 
-            var ctx = new Context(config.pkg());
-            var typeSpec = TypeSpec
-                    .classBuilder(className)
-                    .addModifiers(Modifier.FINAL)
-                    .addAnnotation(Getter.class);
+            var recordCtor = MethodSpec.constructorBuilder();
             for (var prop : fields.properties().entrySet()) {
                 var type = prop.getValue().type();
-
                 var name = prop.getKey();
                 var isValidName = SourceVersion.isName(name);
-                var fieldSpec = FieldSpec.builder(
-                        type.toJavaType(ctx),
-                        isValidName ? name : name + '_',
-                        Modifier.PRIVATE,
-                        Modifier.FINAL);
+                var typeName = type.toJavaType(ctx);
+                var paramSpec = ParameterSpec.builder(
+                        type.nullable() ? typeName.box() : typeName,
+                        isValidName ? name : name + '_');
                 if (type.nullable()) {
-                    fieldSpec.addAnnotation(Nullable.class);
+                    paramSpec.addAnnotation(Nullable.class);
                 }
                 if (!isValidName) {
-                    fieldSpec.addAnnotation(AnnotationSpec.builder(SerializedName.class)
+                    paramSpec.addAnnotation(AnnotationSpec.builder(SerializedName.class)
                             .addMember("value", "$S", name)
                             .build());
                 }
-                var def = fields.defaults().get(prop.getKey());
-                if (def != null) {
-                    fieldSpec.addAnnotation(Builder.Default.class);
-                    // TODO: fieldSpec.initializer(...);
-                }
-
-                typeSpec.addField(fieldSpec.build());
+                recordCtor.addParameter(paramSpec.build());
             }
-
+            typeSpec.recordConstructor(recordCtor.build());
             JavaFile.builder(config.pkg(), typeSpec.build()).build().writeTo(srcDir);
         }
     }

@@ -9,17 +9,11 @@
     <version>@(schemaVersion)</version>
 
     <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.palantir.javapoet</groupId>
-            <artifactId>javapoet</artifactId>
-            <version>0.15.0</version>
-        </dependency>
         <dependency>
             <groupId>rs.ltt.jmap</groupId>
             <artifactId>jmap-client</artifactId>

@@ -39,12 +39,13 @@ public sealed interface StalwartFieldType {
             boolean nullable) implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return switch (format) {
+            var name = switch (format) {
                 case integer, unsignedInteger -> TypeName.INT;
                 case float_ -> TypeName.DOUBLE;
                 case size -> TypeName.LONG;
                 case duration -> TypeName.get(Duration.class);
             };
+            return nullable ? name.box() : name;
         }
     }
 

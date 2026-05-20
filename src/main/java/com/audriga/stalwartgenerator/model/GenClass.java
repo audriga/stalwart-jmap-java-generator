@@ -8,5 +8,5 @@ public interface GenClass {
 
     String javaName();
 
-    TypeSpec generate(Context ctx);
+    TypeSpec.Builder generate(Context ctx);
 }

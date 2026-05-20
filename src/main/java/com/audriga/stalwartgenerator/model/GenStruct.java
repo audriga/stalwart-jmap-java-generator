@@ -5,19 +5,25 @@ import com.palantir.javapoet.*;
 import org.jspecify.annotations.Nullable;
 
 import javax.lang.model.element.Modifier;
+import java.util.ArrayList;
+import java.util.StringJoiner;
 import java.util.stream.Stream;
 
 import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
 
 public record GenStruct(String schemaName, String javaName, Stream<GenField> fields) implements GenSchemaType {
     @Override
-    public TypeSpec generate(Context ctx) {
+    public TypeSpec.Builder generate(Context ctx) {
+        var selfClass = ClassName.get(ctx.pkg(), javaName);
         var recordSpec = TypeSpec
                 .recordBuilder(javaName)
                 .addModifiers(Modifier.PUBLIC);
         var builderSpec = TypeSpec
                 .classBuilder("Builder")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+
+        var buildMethod = MethodSpec.methodBuilder("build").returns(selfClass);
+        var ctorArgs = new StringJoiner(", ");
 
         var recordCtor = MethodSpec.constructorBuilder();
         fields.forEach(field -> {
@@ -30,8 +36,9 @@ public record GenStruct(String schemaName, String javaName, Stream<GenField> fie
             }
             recordCtor.addParameter(paramSpec.build());
 
-            var builderField = FieldSpec.builder(field.typeName(), field.javaName(), Modifier.PRIVATE);
-            if (!field.typeName().isPrimitive()) builderField.addAnnotation(Nullable.class);
+            var builderField = FieldSpec
+                    .builder(field.typeName().box(), field.javaName(), Modifier.PRIVATE)
+                    .addAnnotation(Nullable.class);
             var builderMethod = MethodSpec
                     .methodBuilder(field.javaName())
                     .returns(ClassName.get(ctx.pkg(), javaName, "Builder"))
@@ -40,16 +47,24 @@ public record GenStruct(String schemaName, String javaName, Stream<GenField> fie
                     .addStatement("return this")
                     .build();
             builderSpec.addField(builderField.build()).addMethod(builderMethod);
+            if (!field.nullable()) {
+                buildMethod.addCode(
+                        """
+                                if ($L == null) {
+                                    throw new $T($S);
+                                }
+                                """,
+                        field.javaName(),
+                        IllegalStateException.class,
+                        "required field " + field.javaName() + " was not set");
+            }
+            ctorArgs.add(field.javaName());
         });
-        var selfClass = ClassName.get(ctx.pkg(), javaName);
-        builderSpec.addMethod(MethodSpec
-                .methodBuilder("build")
-                .returns(selfClass)
-                .addStatement("return new $T()", selfClass)
+        builderSpec.addMethod(buildMethod
+                .addStatement("return new $T($L)", selfClass, ctorArgs.toString())
                 .build());
         return recordSpec
                 .recordConstructor(recordCtor.build())
-                .addType(builderSpec.build())
-                .build();
+                .addType(builderSpec.build());
     }
 }

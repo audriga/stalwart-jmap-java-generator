@@ -15,7 +15,7 @@ public record GenSealed(String schemaName, String javaName,
     }
 
     @Override
-    public TypeSpec generate(Context ctx) {
+    public TypeSpec.Builder generate(Context ctx) {
         var interfaceBuilder = TypeSpec.interfaceBuilder(javaName).addModifiers(Modifier.PUBLIC, Modifier.SEALED);
         variants.forEach(variant -> {
             var variantBuilder = TypeSpec
@@ -31,6 +31,6 @@ public record GenSealed(String schemaName, String javaName,
             }
             interfaceBuilder.addType(variantBuilder.build());
         });
-        return interfaceBuilder.build();
+        return interfaceBuilder;
     }
 }

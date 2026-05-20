@@ -21,8 +21,8 @@ public record GenEntity(
     }
 
     @Override
-    public TypeSpec generate(Context ctx) {
-        var builder = type.generate(ctx).toBuilder()
+    public TypeSpec.Builder generate(Context ctx) {
+        var builder = type.generate(ctx)
                 .addAnnotation(AnnotationSpec
                         .builder(JmapEntity.class)
                         .addMember("name", "$S", schemaName())
@@ -35,6 +35,6 @@ public record GenEntity(
         if (enterprise) {
             builder.addJavadoc("<br>enterprise: true");
         }
-        return builder.build();
+        return builder;
     }
 }

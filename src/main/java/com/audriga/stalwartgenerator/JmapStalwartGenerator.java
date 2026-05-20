@@ -81,7 +81,7 @@ public final class JmapStalwartGenerator {
 
         schema.toModel(ctx).forEach(classModel -> {
             try {
-                JavaFile.builder(ctx.pkg(), classModel.generate(ctx)).build().writeTo(srcDir);
+                JavaFile.builder(ctx.pkg(), classModel.generate(ctx).build()).build().writeTo(srcDir);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

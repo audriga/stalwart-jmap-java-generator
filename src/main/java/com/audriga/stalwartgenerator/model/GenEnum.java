@@ -10,7 +10,7 @@ import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName
 
 public record GenEnum(String schemaName, String javaName, Stream<GenEnumVariant> variants) implements GenClass {
     @Override
-    public TypeSpec generate(Context ctx) {
+    public TypeSpec.Builder generate(Context ctx) {
         var enumBuilder = TypeSpec.enumBuilder(javaName).addModifiers(Modifier.PUBLIC);
         variants.forEach(variant -> {
             var builder = TypeSpec.anonymousClassBuilder("")
@@ -25,6 +25,6 @@ public record GenEnum(String schemaName, String javaName, Stream<GenEnumVariant>
             }
             enumBuilder.addEnumConstant(variant.javaName(), builder.build());
         });
-        return enumBuilder.build();
+        return enumBuilder;
     }
 }

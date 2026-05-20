@@ -44,12 +44,12 @@ public record Context(String pkg) {
                 return;
             }
             if (Character.isUpperCase(cp)) {
-                if (acc.state != State.IN_UPPER) {
+                if (acc.state != State.BEGIN && acc.state != State.IN_UPPER) {
                     acc.builder.append('_');
                 }
                 acc.state = State.IN_UPPER;
             } else if (Character.isDigit(cp)) {
-                if (acc.state != State.IN_NUMBER) {
+                if (acc.state != State.BEGIN && acc.state != State.IN_NUMBER) {
                     acc.builder.append('_');
                 }
                 acc.state = State.IN_NUMBER;

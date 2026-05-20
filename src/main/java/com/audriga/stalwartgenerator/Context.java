@@ -2,14 +2,25 @@ package com.audriga.stalwartgenerator;
 
 import com.palantir.javapoet.ClassName;
 
+import javax.lang.model.SourceVersion;
+
 public record Context(String pkg) {
     public ClassName type(String name) {
         return ClassName.get(pkg, jmapToClass(name));
     }
 
-    // not static in case we decide to make the class name prefix configurable
+    public String escapeName(String name) {
+        // we assume reason is always reserved keyword, not special characters in name
+        return SourceVersion.isName(name) ? name : name + '_';
+    }
+
+    // not static in case we decide to make the name generation configurable
     public String jmapToClass(String name) {
         return name.replace("x:", "Stalwart");
+    }
+
+    public String jmapToEnum(String name) {
+        return "Stalwart" + name;
     }
 
     public String jmapToEnumConstant(String name) {

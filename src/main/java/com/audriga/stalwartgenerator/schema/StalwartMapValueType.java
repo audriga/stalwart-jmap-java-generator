@@ -41,7 +41,7 @@ public sealed interface StalwartMapValueType {
     record Enum(java.lang.String enumName) implements StalwartMapValueType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return ctx.type(enumName);
+            return ctx.enumType(enumName);
         }
     }
 

@@ -9,9 +9,15 @@ public record Context(String pkg) {
         return ClassName.get(pkg, jmapToClass(name));
     }
 
+    public ClassName enumType(String name) {
+        return ClassName.get(pkg, jmapToEnum(name));
+    }
+
     public String escapeName(String name) {
+        if (SourceVersion.isName(name)) return name;
+        if (Character.isJavaIdentifierStart(name.codePointAt(0))) return name + '_';
         // we assume reason is always reserved keyword, not special characters in name
-        return SourceVersion.isName(name) ? name : name + '_';
+        return '_' + name;
     }
 
     // not static in case we decide to make the name generation configurable
@@ -24,28 +30,37 @@ public record Context(String pkg) {
     }
 
     public String jmapToEnumConstant(String name) {
+        enum State {BEGIN, IN_UPPER, IN_WORD, IN_NUMBER}
         final class Acc {
             final StringBuilder builder = new StringBuilder();
-            boolean wasStart = true;
+            State state = State.BEGIN;
         }
-        return name.codePoints().collect(Acc::new, (acc, cp) -> {
-            switch (cp) {
-                case '_', '-', '.' -> {
+        var res = name.codePoints().collect(Acc::new, (acc, cp) -> {
+            if (cp == '_' || !Character.isJavaIdentifierPart(cp)) {
+                if (acc.state != State.BEGIN) {
                     acc.builder.append('_');
-                    acc.wasStart = false;
                 }
-                default -> {
-                    var isStart = Character.isUpperCase(cp) || Character.isDigit(cp);
-                    if (!acc.wasStart && isStart) {
-                        acc.builder.append('_');
-                    }
-                    acc.builder.appendCodePoint(Character.toUpperCase(cp));
-                    acc.wasStart = isStart;
-                }
+                acc.state = State.BEGIN;
+                return;
             }
+            if (Character.isUpperCase(cp)) {
+                if (acc.state != State.IN_UPPER) {
+                    acc.builder.append('_');
+                }
+                acc.state = State.IN_UPPER;
+            } else if (Character.isDigit(cp)) {
+                if (acc.state != State.IN_NUMBER) {
+                    acc.builder.append('_');
+                }
+                acc.state = State.IN_NUMBER;
+            } else {
+                acc.state = State.IN_WORD;
+            }
+            acc.builder.appendCodePoint(Character.toUpperCase(cp));
         }, (left, right) -> {
             left.builder.append(right.builder);
-            left.wasStart = right.wasStart;
+            left.state = right.state;
         }).builder.toString();
+        return escapeName(res);
     }
 }

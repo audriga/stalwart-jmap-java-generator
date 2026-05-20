@@ -17,15 +17,18 @@ public record StalwartSchema(
         List<StalwartDashboard> dashboards,
         List<StalwartLayout> layouts) {
     public Stream<GenClass> toModel(Context ctx) {
-        var schemaModels = schemas.entrySet().stream().map(e -> switch (e.getValue()) {
-            case StalwartObjectSchema.Multiple multiple -> new GenSealed(
-                    e.getKey(),
-                    ctx.jmapToClass(e.getKey()),
-                    multiple.variants().stream().map(v -> v.toModel(ctx)));
-            case StalwartObjectSchema.Single single -> new GenStruct(
-                    e.getKey(),
-                    ctx.jmapToClass(e.getKey()),
-                    fields.get(single.schemaName()).toModel(ctx));
+        var schemaModels = schemas.entrySet().stream().flatMap(e -> {
+            if (!e.getKey().startsWith("x:")) return Stream.of();
+            return switch (e.getValue()) {
+                case StalwartObjectSchema.Multiple multiple -> Stream.of(new GenSealed(
+                        e.getKey(),
+                        ctx.jmapToClass(e.getKey()),
+                        multiple.variants().stream().map(v -> v.toModel(ctx))));
+                case StalwartObjectSchema.Single single -> Stream.of(new GenStruct(
+                        e.getKey(),
+                        ctx.jmapToClass(e.getKey()),
+                        fields.get(single.schemaName()).toModel(ctx)));
+            };
         }).map(typeModel -> switch (objects.get(typeModel.schemaName())) {
             case StalwartObjectType.Real r ->
                     new GenEntity(r.description(), r.permissionPrefix(), r.enterprise(), typeModel);

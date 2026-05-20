@@ -41,9 +41,11 @@ public record GenStruct(String schemaName, String javaName, Stream<GenField> fie
                     .build();
             builderSpec.addField(builderField.build()).addMethod(builderMethod);
         });
+        var selfClass = ClassName.get(ctx.pkg(), javaName);
         builderSpec.addMethod(MethodSpec
                 .methodBuilder("build")
-                .addStatement("return new $T()", ClassName.get(ctx.pkg(), javaName))
+                .returns(selfClass)
+                .addStatement("return new $T()", selfClass)
                 .build());
         return recordSpec
                 .recordConstructor(recordCtor.build())

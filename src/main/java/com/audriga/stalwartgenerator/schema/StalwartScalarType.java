@@ -32,7 +32,7 @@ public sealed interface StalwartScalarType {
     record Enum(java.lang.String enumName) implements StalwartScalarType  {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return ctx.type(enumName);
+            return ctx.enumType(enumName);
         }
     }
 }

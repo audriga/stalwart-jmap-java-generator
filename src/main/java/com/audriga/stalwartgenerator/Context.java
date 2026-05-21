@@ -32,12 +32,12 @@ public record Context(String pkg) {
     public String escapeName(String name) {
         if (INVALID_NAMES.contains(name)) return name + '_';
         if (SourceVersion.isName(name)) return name;
-        // we assume reason is always reserved keyword, not special characters in name
+        // we assume reason is always reserved keyword, not special characters in schemaName
         if (Character.isJavaIdentifierStart(name.codePointAt(0))) return name + '_';
         return '_' + name;
     }
 
-    // not static in case we decide to make the name generation configurable
+    // not static in case we decide to make the schemaName generation configurable
     public String jmapToClass(String name) {
         return name.replace("x:", "Stalwart");
     }
@@ -119,13 +119,16 @@ public record Context(String pkg) {
         return fields.properties().entrySet().stream().map(entry -> {
             var name = entry.getKey();
             var javaName = escapeName(name);
-            // TODO: make use of other field properties
-            var type = entry.getValue().type();
+            var field = entry.getValue();
+            var type = field.type();
             return new GenField(name,
                     javaName,
+                    field.description(),
+                    field.update(),
                     type.toJavaType(this),
                     type.nullable(),
-                    fields.defaults().get(name));
+                    fields.defaults().get(name),
+                    field.enterprise());
         });
     }
 

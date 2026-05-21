@@ -25,7 +25,7 @@ public record GenEntity(
         var builder = type.generate(ctx)
                 .addAnnotation(AnnotationSpec
                         .builder(JmapEntity.class)
-                        .addMember("name", "$S", schemaName())
+                        .addMember("schemaName", "$S", schemaName())
                         .build())
                 .addJavadoc("""
                         $L

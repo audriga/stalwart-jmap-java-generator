@@ -26,14 +26,18 @@ public record GenStruct(String schemaName, String javaName, Stream<GenField> fie
 
         var recordCtor = MethodSpec.constructorBuilder();
         fields.forEach(field -> {
-            var paramSpec = ParameterSpec.builder(field.typeName(), field.javaName());
+            var paramSpec = ParameterSpec.builder(field.typeName(), field.javaName())
+                    .addJavadoc("$L", field.description());
             if (field.nullable()) {
                 paramSpec.addAnnotation(Nullable.class);
             }
-            if (!field.name().equals(field.javaName())) {
-                paramSpec.addAnnotation(serializedName(field.name()));
+            if (!field.schemaName().equals(field.javaName())) {
+                paramSpec.addAnnotation(serializedName(field.schemaName()));
             }
-            recordCtor.addParameter(paramSpec.build());
+            if (field.enterprise()) {
+                paramSpec.addJavadoc(" (enterprise feature)");
+            }
+            recordCtor.addParameter(paramSpec.addJavadoc("\n").build());
 
             var builderField = FieldSpec
                     .builder(field.typeName().box(), field.javaName(), Modifier.PRIVATE)

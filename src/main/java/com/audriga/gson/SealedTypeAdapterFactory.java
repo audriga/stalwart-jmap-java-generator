@@ -1,8 +1,10 @@
-package com.audriga.stalwartgenerator.gson;
+package com.audriga.gson;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -11,8 +13,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class SealedTypeAdapterFactory implements TypeAdapterFactory {
     @Override
@@ -22,19 +25,26 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
         var subclasses = permittedSubclasses(raw);
         if (subclasses == null) return null;
 
-        var tagConverter = Optional.ofNullable(raw.getAnnotation(TypeCaseFormat.class))
+        var tagConverter = Annotations.getRecursive(raw, RenameTag.class)
                 .map(format -> CaseFormat.UPPER_CAMEL.converterTo(format.value()))
                 .orElse(Converter.identity());
         var tags = subclasses.stream().collect(ImmutableBiMap.toImmutableBiMap(
                 Function.identity(),
-                c -> tagConverter.convert(c.getSimpleName())));
+                c -> Annotations.get(c, Tag.class)
+                        .map(Tag::value)
+                        .filter(Predicate.not(String::isBlank))
+                        .orElseGet(() -> Objects.requireNonNull(tagConverter.convert(c.getSimpleName())))));
+
+        var tagStyle = Annotations.getRecursive(raw, TagStyle.class)
+                .map(TagStyle::value)
+                .orElse(TagStyle.DEFAULT);
+        var tagField = tagStyle == TagRepr.INTERNAL
+                ? Annotations.getRecursive(raw, TagField.class).map(TagField::value).orElse(TagField.DEFAULT)
+                : null;
+
         var delegates = subclasses.stream().collect(ImmutableMap.toImmutableMap(
                 Function.identity(),
                 c -> gson.getDelegateAdapter(this, TypeToken.get(c))));
-
-        // TODO: check mutual exclusivity
-        var externalType = raw.isAnnotationPresent(ExternalType.class);
-        var typeField = Optional.ofNullable(raw.getAnnotation(TypeField.class)).map(TypeField::value).orElse("type");
 
         var jsonElementAdapter = gson.getAdapter(JsonElement.class);
 
@@ -49,18 +59,18 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 out.beginObject();
-                if (externalType) {
+                if (tagStyle == TagRepr.EXTERNAL) {
                     out.name(tags.get(clazz));
                     delegate.write(out, value);
                 } else {
                     var object = delegate.toJsonTree(value).getAsJsonObject();
-                    if (object.has(typeField)) {
+                    if (object.has(tagField)) {
                         throw new JsonParseException("cannot serialize "
                                 + clazz.getName()
                                 + " because it already defines a field named "
-                                + typeField);
+                                + tagField);
                     }
-                    out.name(typeField);
+                    out.name(tagField);
                     out.value(tags.get(clazz));
                     for (var entry : object.entrySet()) {
                         out.name(entry.getKey());
@@ -72,7 +82,7 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
 
             @Override
             public T read(JsonReader in) throws IOException {
-                if (externalType) {
+                if (tagStyle == TagRepr.EXTERNAL) {
                     in.beginObject();
                     var tag = in.nextName();
                     var value = getDelegate(tag).read(in);
@@ -81,10 +91,10 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
                 }
 
                 var object = jsonElementAdapter.read(in).getAsJsonObject();
-                if (!object.has(typeField)) {
-                    throw new JsonParseException("missing type field '" + typeField + "' for " + object);
+                if (!object.has(tagField)) {
+                    throw new JsonParseException("missing type field '" + tagField + "' for " + object);
                 }
-                var tag = object.remove(typeField).getAsString();
+                var tag = object.remove(tagField).getAsString();
                 return getDelegate(tag).fromJsonTree(object);
             }
 
@@ -102,8 +112,10 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
     @Nullable
     private static ImmutableSet<Class<?>> permittedSubclasses(Class<?> clazz) {
         var subclasses = clazz.getPermittedSubclasses();
-        // open class, invalid for this adapter
+        // not a sealed class, invalid for this adapter
         if (subclasses == null) return null;
+        // we want at least one subclass
+        if (subclasses.length == 0) return null;
 
         for (var sub : subclasses) {
             // open subclass, also invalid

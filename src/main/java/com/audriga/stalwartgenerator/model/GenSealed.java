@@ -1,5 +1,7 @@
 package com.audriga.stalwartgenerator.model;
 
+import com.audriga.gson.Flatten;
+import com.audriga.gson.Tag;
 import com.audriga.stalwartgenerator.Context;
 import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
@@ -24,11 +26,14 @@ public record GenSealed(String schemaName, String javaName,
                     .recordBuilder(variant.javaName)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addSuperinterface(ctx.type(javaName))
-                    .addAnnotation(AnnotationSpec
-                            .builder(Type.class)
-                            .addMember("value", "$S", variant.schemaName)
-                            .build())
+                    .addAnnotation(Flatten.class)
                     .addJavadoc("$L", variant.label);
+            if (!variant.schemaName.equals(variant.javaName)) {
+                variantBuilder.addAnnotation(AnnotationSpec
+                        .builder(Tag.class)
+                        .addMember("value", "$S", variant.schemaName)
+                        .build());
+            }
             if (variant.innerType != null) {
                 variantBuilder.recordConstructor(MethodSpec
                         .constructorBuilder()

@@ -35,7 +35,7 @@ public record GenStruct(String schemaName, String javaName, Stream<GenField> fie
                 paramSpec.addAnnotation(serializedName(field.schemaName()));
             }
             if (field.enterprise()) {
-                paramSpec.addJavadoc(" (enterprise feature)");
+                paramSpec.addJavadoc(" (enterprise)");
             }
             recordCtor.addParameter(paramSpec.addJavadoc("\n").build());
 

@@ -1,12 +1,13 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.gson.ExternalType;
-import com.audriga.stalwartgenerator.gson.TypeCaseFormat;
+import com.audriga.gson.TagRepr;
+import com.audriga.gson.TagStyle;
+import com.audriga.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 import java.util.List;
 
-@TypeCaseFormat(CaseFormat.LOWER_CAMEL)
-@ExternalType
+@RenameTag(CaseFormat.LOWER_CAMEL)
+@TagStyle(TagRepr.EXTERNAL)
 public sealed interface StalwartLayoutItem {
     record Container(
             String name,

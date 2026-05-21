@@ -1,6 +1,4 @@
-package com.audriga.stalwartgenerator.gson;
-
-import com.google.common.base.CaseFormat;
+package com.audriga.gson;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-public @interface TypeCaseFormat {
-    CaseFormat value();
+@Target({ElementType.TYPE, ElementType.PACKAGE, ElementType.MODULE})
+public @interface Flatten {
+    boolean value() default true;
 }

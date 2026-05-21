@@ -1,9 +1,9 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.gson.TypeCaseFormat;
+import com.audriga.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 
-@TypeCaseFormat(CaseFormat.LOWER_CAMEL)
+@RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartObjectType {
     sealed interface Real {
         String description();

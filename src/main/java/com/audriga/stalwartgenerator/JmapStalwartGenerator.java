@@ -1,6 +1,6 @@
 package com.audriga.stalwartgenerator;
 
-import com.audriga.stalwartgenerator.gson.SealedTypeAdapterFactory;
+import com.audriga.gson.SealedTypeAdapterFactory;
 import com.audriga.stalwartgenerator.schema.StalwartSchema;
 import com.google.common.io.MoreFiles;
 import com.google.gson.Gson;
@@ -60,7 +60,7 @@ public final class JmapStalwartGenerator {
     }
 
     public static void generate(Config config, StalwartSchema schema) throws IOException {
-        if (config.overwrite()) {
+        if (config.overwrite() && Files.exists(config.baseDir())) {
             // delete everything first for a clean slate without old leftovers
             MoreFiles.deleteRecursively(config.baseDir());
         }

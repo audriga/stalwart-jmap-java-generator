@@ -49,7 +49,7 @@ public class Template {
     }
 
     private void doApply(Path root, Map<String, String> values, Path outDir) throws IOException {
-        try (var stream = Files.walk(root)) {
+        try (var stream = Files.walk(root, FileVisitOption.FOLLOW_LINKS)) {
             stream.forEach(path -> {
                 try {
                     handlePath(root, path, values, outDir);

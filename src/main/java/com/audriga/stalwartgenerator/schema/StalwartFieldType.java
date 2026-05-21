@@ -1,7 +1,7 @@
 package com.audriga.stalwartgenerator.schema;
 
 import com.audriga.stalwartgenerator.Context;
-import com.audriga.stalwartgenerator.gson.TypeCaseFormat;
+import com.audriga.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 import com.google.gson.annotations.SerializedName;
 import com.palantir.javapoet.ClassName;
@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-@TypeCaseFormat(CaseFormat.LOWER_CAMEL)
+@RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartFieldType {
     default boolean nullable() {
         return false;

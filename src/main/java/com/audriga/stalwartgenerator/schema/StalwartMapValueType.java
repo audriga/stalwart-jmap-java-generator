@@ -1,7 +1,7 @@
 package com.audriga.stalwartgenerator.schema;
 
 import com.audriga.stalwartgenerator.Context;
-import com.audriga.stalwartgenerator.gson.TypeCaseFormat;
+import com.audriga.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.TypeName;
@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
 
-@TypeCaseFormat(CaseFormat.LOWER_CAMEL)
+@RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartMapValueType {
     TypeName toJavaType(Context ctx);
 

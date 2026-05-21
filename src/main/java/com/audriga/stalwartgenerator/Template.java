@@ -8,7 +8,14 @@ import java.nio.file.*;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/// Simple recursive file templating with variables.
+///
+/// Both file paths and contents are subject to variable replacement.
+/// The Syntax is `@(variableName)`.
+/// Variables without a given replacement are treated as an error.
 public class Template {
+    public static final Template BUNDLED = Template.ofResource("/template", Template.class);
+
     private static final Pattern VAR_PATTERN = Pattern.compile("@\\((\\p{Alnum}+)\\)");
 
     private final URI uri;
@@ -17,8 +24,8 @@ public class Template {
         this.uri = uri;
     }
 
-    public static Template ofResource(String name) {
-        var url = Template.class.getResource(name);
+    public static Template ofResource(String name, Class<?> clazz) {
+        var url = clazz.getResource(name);
         if (url == null) {
             throw new IllegalArgumentException("resource " + name + " does not exist");
         }

@@ -25,7 +25,6 @@ public final class JmapStalwartGenerator {
             .create();
     private static final Object BUNDLED_LOCK = new Object();
     private static volatile StalwartSchema bundled;
-    private static final Template TEMPLATE = Template.ofResource("/template");
 
     public static StalwartSchema fetchSchema(
             OkHttpClient httpClient,
@@ -67,7 +66,7 @@ public final class JmapStalwartGenerator {
         }
         Files.createDirectories(config.baseDir());
 
-        TEMPLATE.apply(
+        Template.BUNDLED.apply(
                 Map.of(
                         "schemaVersion", "0.16.5",
                         "pkg", config.pkg(),

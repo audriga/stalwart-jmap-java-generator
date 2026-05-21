@@ -25,6 +25,7 @@ public final class JmapStalwartGenerator {
             .create();
     private static final Object BUNDLED_LOCK = new Object();
     private static volatile StalwartSchema bundled;
+    private static final Template TEMPLATE = Template.ofResource("/template");
 
     public static StalwartSchema fetchSchema(
             OkHttpClient httpClient,
@@ -66,15 +67,12 @@ public final class JmapStalwartGenerator {
         }
         Files.createDirectories(config.baseDir());
 
-        Template.POM_XML.apply(Map.of("schemaVersion", "0.16.5"), config.baseDir());
-        Template.PACKAGE_INFO.apply(
-                Map.of("pkg", config.pkg(), "pkgPath", config.pkgPath()),
+        TEMPLATE.apply(
+                Map.of(
+                        "schemaVersion", "0.16.5",
+                        "pkg", config.pkg(),
+                        "pkgPath", config.pkgPath()),
                 config.baseDir());
-        Files.writeString(config.baseDir().resolve(".gitignore"), """
-                target/
-                !**/src/main/**/target/
-                !**/src/test/**/target/
-                """);
 
         var srcDir = config.baseDir().resolve("src", "main", "java");
         var ctx = new Context(config.pkg());

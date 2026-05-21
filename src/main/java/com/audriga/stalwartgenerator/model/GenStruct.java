@@ -5,7 +5,6 @@ import com.palantir.javapoet.*;
 import org.jspecify.annotations.Nullable;
 
 import javax.lang.model.element.Modifier;
-import java.util.ArrayList;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 

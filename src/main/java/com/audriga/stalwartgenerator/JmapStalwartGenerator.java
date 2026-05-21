@@ -24,7 +24,7 @@ public final class JmapStalwartGenerator {
             .registerTypeAdapterFactory(new SealedTypeAdapterFactory())
             .create();
     private static final Object BUNDLED_LOCK = new Object();
-    private static StalwartSchema bundled;
+    private static volatile StalwartSchema bundled;
 
     public static StalwartSchema fetchSchema(
             OkHttpClient httpClient,
@@ -79,7 +79,7 @@ public final class JmapStalwartGenerator {
         var srcDir = config.baseDir().resolve("src", "main", "java");
         var ctx = new Context(config.pkg());
 
-        schema.toModel(ctx).forEach(classModel -> {
+        ctx.toModel(schema).forEach(classModel -> {
             try {
                 JavaFile.builder(ctx.pkg(), classModel.generate(ctx).build()).build().writeTo(srcDir);
             } catch (IOException e) {

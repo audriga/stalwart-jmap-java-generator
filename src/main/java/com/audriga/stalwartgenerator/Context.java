@@ -1,8 +1,11 @@
 package com.audriga.stalwartgenerator;
 
+import com.audriga.stalwartgenerator.model.*;
+import com.audriga.stalwartgenerator.schema.*;
 import com.palantir.javapoet.ClassName;
 
 import javax.lang.model.SourceVersion;
+import java.util.stream.Stream;
 
 public record Context(String pkg) {
     public ClassName type(String name) {
@@ -15,8 +18,8 @@ public record Context(String pkg) {
 
     public String escapeName(String name) {
         if (SourceVersion.isName(name)) return name;
-        if (Character.isJavaIdentifierStart(name.codePointAt(0))) return name + '_';
         // we assume reason is always reserved keyword, not special characters in name
+        if (Character.isJavaIdentifierStart(name.codePointAt(0))) return name + '_';
         return '_' + name;
     }
 
@@ -62,5 +65,61 @@ public record Context(String pkg) {
             left.state = right.state;
         }).builder.toString();
         return escapeName(res);
+    }
+
+    public Stream<GenClass> toModel(StalwartSchema schema) {
+        var schemaModels = schema.schemas()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith("x:"))
+                .map(e -> switch (e.getValue()) {
+                    case StalwartObjectSchema.Multiple multiple -> new GenSealed(
+                            e.getKey(),
+                            jmapToClass(e.getKey()),
+                            multiple.variants().stream().map(this::toModel));
+                    case StalwartObjectSchema.Single single -> new GenStruct(
+                            e.getKey(),
+                            jmapToClass(e.getKey()),
+                            toModel(schema.fields().get(single.schemaName())));
+                }).map(typeModel -> switch (schema.objects().get(typeModel.schemaName())) {
+                    case StalwartObjectType.Real r ->
+                            new GenEntity(r.description(), r.permissionPrefix(), r.enterprise(), typeModel);
+                    case null, default -> typeModel;
+                });
+        var enumModels = schema.enums().entrySet().stream().map(e -> new GenEnum(
+                e.getKey(),
+                jmapToEnum(e.getKey()),
+                e.getValue().stream().map(this::toModel)));
+        return Stream.concat(schemaModels, enumModels);
+    }
+
+    private GenSealed.Variant toModel(StalwartObjectVariant variant) {
+        return new GenSealed.Variant(
+                variant.name(),
+                escapeName(variant.name()),
+                variant.label(),
+                variant.schemaName() != null ? type(variant.schemaName()) : null);
+    }
+
+    private Stream<GenField> toModel(StalwartFields fields) {
+        return fields.properties().entrySet().stream().map(entry -> {
+            var name = entry.getKey();
+            var javaName = escapeName(name);
+            // TODO: make use of other field properties
+            var type = entry.getValue().type();
+            return new GenField(name,
+                    javaName,
+                    type.toJavaType(this),
+                    type.nullable(),
+                    fields.defaults().get(name));
+        });
+    }
+
+    private GenEnumVariant toModel(StalwartEnumVariant variant) {
+        return new GenEnumVariant(
+                variant.name(),
+                jmapToEnumConstant(variant.name()),
+                variant.label(),
+                variant.explanation());
     }
 }

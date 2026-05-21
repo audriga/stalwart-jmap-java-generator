@@ -13,17 +13,30 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>rs.ltt.jmap</groupId>
+                            <artifactId>jmap-annotation-processor</artifactId>
+                            <version>${jmapVersion}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>rs.ltt.jmap</groupId>
             <artifactId>jmap-client</artifactId>
             <version>${jmapVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>rs.ltt.jmap</groupId>
-            <artifactId>jmap-annotation-processor</artifactId>
-            <version>${jmapVersion}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

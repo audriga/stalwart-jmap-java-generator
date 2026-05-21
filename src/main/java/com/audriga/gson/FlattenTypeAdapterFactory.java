@@ -40,6 +40,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 Object inner;
                 try {
                     inner = accessor.invoke(value);
+                } catch (RuntimeException e) {
+                    throw e;
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -52,6 +54,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 var inner = delegate.read(in);
                 try {
                     return (T) ctor.invoke(inner);
+                } catch (RuntimeException e) {
+                    throw e;
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }

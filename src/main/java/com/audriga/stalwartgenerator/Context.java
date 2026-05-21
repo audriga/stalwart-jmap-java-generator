@@ -5,9 +5,22 @@ import com.audriga.stalwartgenerator.schema.*;
 import com.palantir.javapoet.ClassName;
 
 import javax.lang.model.SourceVersion;
+import java.util.List;
 import java.util.stream.Stream;
 
 public record Context(String pkg) {
+    // Names of public or protected methods in Object
+    // See also https://docs.oracle.com/javase/specs/jls/se26/html/jls-8.html#jls-8.10.1
+    private static final List<String> INVALID_NAMES = List.of(
+            "clone",
+            "finalize",
+            "getClass",
+            "hashCode",
+            "notify",
+            "notifyAll",
+            "toString",
+            "wait");
+
     public ClassName type(String name) {
         return ClassName.get(pkg, jmapToClass(name));
     }
@@ -17,6 +30,7 @@ public record Context(String pkg) {
     }
 
     public String escapeName(String name) {
+        if (INVALID_NAMES.contains(name)) return name + '_';
         if (SourceVersion.isName(name)) return name;
         // we assume reason is always reserved keyword, not special characters in name
         if (Character.isJavaIdentifierStart(name.codePointAt(0))) return name + '_';

@@ -1,14 +1,13 @@
 package com.audriga.stalwartgenerator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
 import okhttp3.HttpUrl;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import rs.ltt.jmap.client.Services;
 import rs.ltt.jmap.client.http.BasicAuthHttpAuthentication;
-
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class SchemaFetchTest {
     @Test

@@ -6,8 +6,7 @@ import java.lang.reflect.RecordComponent;
 import java.util.Optional;
 
 final class Annotations {
-    private Annotations() {
-    }
+    private Annotations() {}
 
     static <A extends Annotation> Optional<A> get(AnnotatedElement element, Class<A> annotationClass) {
         return Optional.ofNullable(element.getAnnotation(annotationClass));
@@ -20,7 +19,6 @@ final class Annotations {
     }
 
     static <A extends Annotation> Optional<A> getRecursive(RecordComponent element, Class<A> annotationClass) {
-        return get(element, annotationClass)
-                .or(() -> getRecursive(element.getDeclaringRecord(), annotationClass));
+        return get(element, annotationClass).or(() -> getRecursive(element.getDeclaringRecord(), annotationClass));
     }
 }

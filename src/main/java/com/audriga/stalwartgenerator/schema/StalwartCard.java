@@ -12,6 +12,4 @@ public record StalwartCard(
         StalwartMetricFormat format,
         @Nullable String description,
         boolean sparkline,
-        boolean delta
-) {
-}
+        boolean delta) {}

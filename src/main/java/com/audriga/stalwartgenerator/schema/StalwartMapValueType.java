@@ -1,13 +1,12 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.Context;
 import com.audriga.jmap.gson.RenameTag;
+import com.audriga.stalwartgenerator.Context;
 import com.google.common.base.CaseFormat;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.TypeName;
-import org.jspecify.annotations.Nullable;
-
 import java.time.Duration;
+import org.jspecify.annotations.Nullable;
 
 @RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartMapValueType {

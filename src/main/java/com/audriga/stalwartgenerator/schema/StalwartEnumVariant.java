@@ -6,5 +6,4 @@ public record StalwartEnumVariant(
         String name,
         String label,
         @Nullable String explanation,
-        @Nullable String color) {
-}
+        @Nullable String color) {}

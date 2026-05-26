@@ -9,5 +9,4 @@ public record StalwartChart(
         List<StalwartSeries> series,
         boolean stacked,
         @Nullable StalwartMetricFormat valueFormat,
-        @Nullable String description) {
-}
+        @Nullable String description) {}

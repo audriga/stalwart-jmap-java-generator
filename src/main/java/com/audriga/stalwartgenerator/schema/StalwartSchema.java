@@ -11,5 +11,4 @@ public record StalwartSchema(
         Map<String, StalwartList> lists,
         Map<String, List<StalwartEnumVariant>> enums,
         List<StalwartDashboard> dashboards,
-        List<StalwartLayout> layouts) {
-}
+        List<StalwartLayout> layouts) {}

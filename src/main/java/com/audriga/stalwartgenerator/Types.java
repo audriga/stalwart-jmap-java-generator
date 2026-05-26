@@ -4,14 +4,12 @@ import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
-import org.jspecify.annotations.Nullable;
-
 import java.util.Map;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 
 public final class Types {
-    private Types() {
-    }
+    private Types() {}
 
     public static final ClassName STRING = ClassName.get(String.class);
     public static final ClassName MAP = ClassName.get(Map.class);

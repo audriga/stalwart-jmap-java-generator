@@ -1,17 +1,16 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.Context;
 import com.audriga.jmap.gson.RenameTag;
+import com.audriga.stalwartgenerator.Context;
 import com.google.common.base.CaseFormat;
 import com.google.gson.annotations.SerializedName;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
-import org.jspecify.annotations.Nullable;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 @RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartFieldType {
@@ -39,12 +38,13 @@ public sealed interface StalwartFieldType {
             boolean nullable) implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            var name = switch (format) {
-                case integer, unsignedInteger -> TypeName.INT;
-                case float_ -> TypeName.DOUBLE;
-                case size -> TypeName.LONG;
-                case duration -> TypeName.get(Duration.class);
-            };
+            var name =
+                    switch (format) {
+                        case integer, unsignedInteger -> TypeName.INT;
+                        case float_ -> TypeName.DOUBLE;
+                        case size -> TypeName.LONG;
+                        case duration -> TypeName.get(Duration.class);
+                    };
             return nullable ? name.box() : name;
         }
     }
@@ -109,7 +109,8 @@ public sealed interface StalwartFieldType {
             @Nullable Integer maxItems) implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return ParameterizedTypeName.get(ClassName.get(java.util.Set.class), clazz.toJavaType(ctx).box());
+            return ParameterizedTypeName.get(
+                    ClassName.get(java.util.Set.class), clazz.toJavaType(ctx).box());
         }
     }
 
@@ -117,7 +118,8 @@ public sealed interface StalwartFieldType {
             StalwartScalarType keyClass,
             StalwartMapValueType valueClass,
             @Nullable Integer minItems,
-            @Nullable Integer maxItems) implements StalwartFieldType {
+            @Nullable Integer maxItems)
+            implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
             return ParameterizedTypeName.get(

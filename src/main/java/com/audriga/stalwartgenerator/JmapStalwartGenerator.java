@@ -7,17 +7,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 import com.palantir.javapoet.*;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import rs.ltt.jmap.client.http.HttpAuthentication;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.*;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import rs.ltt.jmap.client.http.HttpAuthentication;
 
 public final class JmapStalwartGenerator {
     private static final Gson GSON = new GsonBuilder()
@@ -26,10 +25,8 @@ public final class JmapStalwartGenerator {
     private static final Object BUNDLED_LOCK = new Object();
     private static volatile StalwartSchema bundled;
 
-    public static StalwartSchema fetchSchema(
-            OkHttpClient httpClient,
-            HttpUrl baseUrl,
-            HttpAuthentication auth) throws IOException {
+    public static StalwartSchema fetchSchema(OkHttpClient httpClient, HttpUrl baseUrl, HttpAuthentication auth)
+            throws IOException {
         var url = Objects.requireNonNull(baseUrl.resolve("/api/schema"));
         var builder = new Request.Builder().url(url);
         auth.authenticate(builder);
@@ -77,7 +74,10 @@ public final class JmapStalwartGenerator {
         var ctx = new Context(config.pkg());
 
         ctx.toModel(schema).forEach(classModel -> {
-            var type = classModel.generate(ctx).alwaysQualify("Get", "Set", "Query").build();
+            var type = classModel
+                    .generate(ctx)
+                    .alwaysQualify("Get", "Set", "Query")
+                    .build();
             try {
                 JavaFile.builder(ctx.pkg(), type).build().writeTo(srcDir);
             } catch (IOException e) {
@@ -87,6 +87,8 @@ public final class JmapStalwartGenerator {
     }
 
     public static AnnotationSpec serializedName(String value) {
-        return AnnotationSpec.builder(SerializedName.class).addMember("value", "$S", value).build();
+        return AnnotationSpec.builder(SerializedName.class)
+                .addMember("value", "$S", value)
+                .build();
     }
 }

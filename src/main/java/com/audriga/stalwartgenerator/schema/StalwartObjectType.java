@@ -13,13 +13,11 @@ public sealed interface StalwartObjectType {
         boolean enterprise();
     }
 
-    record Singleton(String description, String permissionPrefix,
-                     boolean enterprise) implements StalwartObjectType, Real {
-    }
+    record Singleton(String description, String permissionPrefix, boolean enterprise)
+            implements StalwartObjectType, Real {}
 
-    record Object(String description, String permissionPrefix, boolean enterprise) implements StalwartObjectType, Real {
-    }
+    record Object(String description, String permissionPrefix, boolean enterprise)
+            implements StalwartObjectType, Real {}
 
-    record View(String objectName) implements StalwartObjectType {
-    }
+    record View(String objectName) implements StalwartObjectType {}
 }

@@ -1,12 +1,11 @@
 package com.audriga.stalwartgenerator.model;
 
+import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
+
 import com.audriga.stalwartgenerator.Context;
 import com.palantir.javapoet.TypeSpec;
-
-import javax.lang.model.element.Modifier;
 import java.util.stream.Stream;
-
-import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
+import javax.lang.model.element.Modifier;
 
 public record GenEnum(String schemaName, String javaName, Stream<GenEnumVariant> variants) implements GenClass {
     @Override
@@ -18,7 +17,7 @@ public record GenEnum(String schemaName, String javaName, Stream<GenEnumVariant>
                     .addJavadoc("$L", variant.label());
             if (variant.explanation() != null) {
                 builder.addJavadoc("""
-                        
+
                         <p>
                         $L
                         """, variant.explanation());

@@ -7,5 +7,4 @@ public record StalwartFormField(
         String label,
         @Nullable String keyLabel,
         @Nullable String valueLabel,
-        @Nullable String placeholder) {
-}
+        @Nullable String placeholder) {}

@@ -1,8 +1,8 @@
 package com.audriga.stalwartgenerator.schema;
 
+import com.google.gson.JsonElement;
 import java.util.List;
 import java.util.Map;
-import com.google.gson.JsonElement;
 import org.jspecify.annotations.Nullable;
 
 public record StalwartList(
@@ -16,6 +16,4 @@ public record StalwartList(
         Map<String, JsonElement> filtersStatic,
         List<String> sort,
         List<StalwartMassAction> massAction,
-        List<StalwartItemAction> itemActions
-) {
-}
+        List<StalwartItemAction> itemActions) {}

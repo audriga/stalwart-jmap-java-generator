@@ -1,7 +1,7 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.stalwartgenerator.Context;
 import com.audriga.jmap.gson.RenameTag;
+import com.audriga.stalwartgenerator.Context;
 import com.google.common.base.CaseFormat;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.TypeName;
@@ -29,7 +29,7 @@ public sealed interface StalwartScalarType {
         }
     }
 
-    record Enum(java.lang.String enumName) implements StalwartScalarType  {
+    record Enum(java.lang.String enumName) implements StalwartScalarType {
         @Override
         public TypeName toJavaType(Context ctx) {
             return ctx.enumType(enumName);

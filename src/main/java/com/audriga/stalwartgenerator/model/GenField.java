@@ -13,5 +13,4 @@ public record GenField(
         TypeName typeName,
         boolean nullable,
         @Nullable JsonElement defaultValue,
-        boolean enterprise) {
-}
+        boolean enterprise) {}

@@ -9,13 +9,12 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import org.jspecify.annotations.Nullable;
-
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.jspecify.annotations.Nullable;
 
 public class SealedTypeAdapterFactory implements TypeAdapterFactory {
     @Override
@@ -28,23 +27,26 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
         var tagConverter = Annotations.getRecursive(raw, RenameTag.class)
                 .map(format -> CaseFormat.UPPER_CAMEL.converterTo(format.value()))
                 .orElse(Converter.identity());
-        var tags = subclasses.stream().collect(ImmutableBiMap.toImmutableBiMap(
-                Function.identity(),
-                c -> Annotations.get(c, Tag.class)
-                        .map(Tag::value)
-                        .filter(Predicate.not(String::isBlank))
-                        .orElseGet(() -> Objects.requireNonNull(tagConverter.convert(c.getSimpleName())))));
+        var tags = subclasses.stream()
+                .collect(ImmutableBiMap.toImmutableBiMap(
+                        Function.identity(),
+                        c -> Annotations.get(c, Tag.class)
+                                .map(Tag::value)
+                                .filter(Predicate.not(String::isBlank))
+                                .orElseGet(() -> Objects.requireNonNull(tagConverter.convert(c.getSimpleName())))));
 
         var tagStyle = Annotations.getRecursive(raw, TagStyle.class)
                 .map(TagStyle::value)
                 .orElse(TagStyle.DEFAULT);
         var tagField = tagStyle == TagRepr.INTERNAL
-                ? Annotations.getRecursive(raw, TagField.class).map(TagField::value).orElse(TagField.DEFAULT)
+                ? Annotations.getRecursive(raw, TagField.class)
+                        .map(TagField::value)
+                        .orElse(TagField.DEFAULT)
                 : null;
 
-        var delegates = subclasses.stream().collect(ImmutableMap.toImmutableMap(
-                Function.identity(),
-                c -> gson.getDelegateAdapter(this, TypeToken.get(c))));
+        var delegates = subclasses.stream()
+                .collect(ImmutableMap.toImmutableMap(
+                        Function.identity(), c -> gson.getDelegateAdapter(this, TypeToken.get(c))));
 
         var jsonElementAdapter = gson.getAdapter(JsonElement.class);
 

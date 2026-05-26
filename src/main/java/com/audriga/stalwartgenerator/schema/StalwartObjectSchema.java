@@ -6,9 +6,7 @@ import java.util.List;
 
 @RenameTag(CaseFormat.LOWER_CAMEL)
 public sealed interface StalwartObjectSchema {
-    record Single(String schemaName) implements StalwartObjectSchema {
-    }
+    record Single(String schemaName) implements StalwartObjectSchema {}
 
-    record Multiple(List<StalwartObjectVariant> variants) implements StalwartObjectSchema {
-    }
+    record Multiple(List<StalwartObjectVariant> variants) implements StalwartObjectSchema {}
 }

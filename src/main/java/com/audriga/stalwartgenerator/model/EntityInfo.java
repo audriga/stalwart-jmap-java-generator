@@ -3,6 +3,11 @@ package com.audriga.stalwartgenerator.model;
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
 import com.palantir.javapoet.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringJoiner;
+import java.util.function.Function;
+import javax.lang.model.element.Modifier;
 import rs.ltt.jmap.annotation.JmapEntity;
 import rs.ltt.jmap.annotation.JmapMethod;
 import rs.ltt.jmap.common.Request;
@@ -18,22 +23,11 @@ import rs.ltt.jmap.common.method.response.standard.GetMethodResponse;
 import rs.ltt.jmap.common.method.response.standard.QueryMethodResponse;
 import rs.ltt.jmap.common.method.response.standard.SetMethodResponse;
 
-import javax.lang.model.element.Modifier;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringJoiner;
-import java.util.function.Function;
-
-public record EntityInfo(
-        String description,
-        String permissionPrefix,
-        boolean enterprise) {
+public record EntityInfo(String description, String permissionPrefix, boolean enterprise) {
     public void apply(Context ctx, TypeSpec.Builder builder, GenSchemaType schemaType) {
         var selfType = ClassName.get(ctx.pkg(), schemaType.javaName());
-        builder
-                .addSuperinterface(ClassName.get(ctx.pkg(), "StalwartIdentifiable"))
-                .addAnnotation(AnnotationSpec
-                        .builder(JmapEntity.class)
+        builder.addSuperinterface(ClassName.get(ctx.pkg(), "StalwartIdentifiable"))
+                .addAnnotation(AnnotationSpec.builder(JmapEntity.class)
                         .addMember("name", "$S", schemaType.schemaName())
                         .build())
                 .addJavadoc("""
@@ -82,13 +76,14 @@ public record EntityInfo(
                         p(ArrayTypeName.of(Types.STRING), "destroyed"),
                         p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notCreated"),
                         p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notUpdated"),
-                        p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notDestroyed")
-                )),
+                        p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notDestroyed"))),
         QUERY(
                 QueryMethodCall.class,
                 entityClass -> List.of(
                         p(Types.STRING, "accountId"),
-                        p(Types.nullable(ParameterizedTypeName.get(ClassName.get(Filter.class), entityClass)), "filter"),
+                        p(
+                                Types.nullable(ParameterizedTypeName.get(ClassName.get(Filter.class), entityClass)),
+                                "filter"),
                         p(Types.nullable(ArrayTypeName.of(Comparator.class)), "sort"),
                         p(Types.nullable(TypeName.LONG), "position"),
                         p(Types.nullable(Types.STRING), "anchor"),
@@ -103,8 +98,7 @@ public record EntityInfo(
                         p(Types.nullable(TypeName.LONG), "position"),
                         p(ArrayTypeName.of(Types.STRING), "ids"),
                         p(Types.nullable(TypeName.LONG), "total"),
-                        p(Types.nullable(TypeName.LONG), "limit")
-                ));
+                        p(Types.nullable(TypeName.LONG), "limit")));
 
         private final String jmapName;
         private final String className;
@@ -127,8 +121,7 @@ public record EntityInfo(
         }
 
         public TypeSpec generate(GenSchemaType type, ClassName entityClass) {
-            var annotation = AnnotationSpec
-                    .builder(JmapMethod.class)
+            var annotation = AnnotationSpec.builder(JmapMethod.class)
                     .addMember("value", "$S", "%s/%s".formatted(type.schemaName(), jmapName))
                     .build();
             return TypeSpec.classBuilder(className)
@@ -136,8 +129,7 @@ public record EntityInfo(
                     .superclass(ParameterizedTypeName.get(callBaseClass, entityClass))
                     .addAnnotation(annotation)
                     .addMethod(makeCtor(callCtor, entityClass))
-                    .addType(TypeSpec
-                            .classBuilder("Response")
+                    .addType(TypeSpec.classBuilder("Response")
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                             .superclass(ParameterizedTypeName.get(responseBaseClass, entityClass))
                             .addAnnotation(annotation)

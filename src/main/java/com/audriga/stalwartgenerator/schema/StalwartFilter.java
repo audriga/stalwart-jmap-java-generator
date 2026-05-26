@@ -9,18 +9,13 @@ public sealed interface StalwartFilter {
 
     String label();
 
-    record Text(String field, String label) implements StalwartFilter {
-    }
+    record Text(String field, String label) implements StalwartFilter {}
 
-    record Enum(String field, String enumLabel, String label) implements StalwartFilter {
-    }
+    record Enum(String field, String enumLabel, String label) implements StalwartFilter {}
 
-    record Integer(String field, String label) implements StalwartFilter {
-    }
+    record Integer(String field, String label) implements StalwartFilter {}
 
-    record Date(String field, String label) implements StalwartFilter {
-    }
+    record Date(String field, String label) implements StalwartFilter {}
 
-    record ObjectId(String field, String objectName, String label) implements StalwartFilter {
-    }
+    record ObjectId(String field, String objectName, String label) implements StalwartFilter {}
 }

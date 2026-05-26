@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SchemaFetchTest {
     @Test
     void fetch() throws IOException {
-        try (var stalwart = new GenericContainer<>("stalwartlabs/stalwart:v0.16.5")
+        try (var stalwart = new GenericContainer<>("stalwartlabs/stalwart:v0.16.6")
                 .withExposedPorts(8080)
                 .withEnv("STALWART_RECOVERY_ADMIN", "admin:pw")) {
             stalwart.start();

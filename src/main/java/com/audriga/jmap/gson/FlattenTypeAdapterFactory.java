@@ -1,4 +1,4 @@
-package com.audriga.gson;
+package com.audriga.jmap.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -19,7 +19,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         var raw = type.getRawType();
         var components = raw.getRecordComponents();
-        if (components == null || components.length != 1) return null;
+        if (components == null) return null;
         if (Annotations.getRecursive(raw, Flatten.class).filter(Flatten::value).isEmpty()) return null;
 
         var component = components[0];
@@ -40,7 +40,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 Object inner;
                 try {
                     inner = accessor.invoke(value);
-                } catch (RuntimeException e) {
+                } catch (RuntimeException | Error e) {
                     throw e;
                 } catch (Throwable e) {
                     throw new RuntimeException(e);

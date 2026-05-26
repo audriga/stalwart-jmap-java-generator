@@ -1,4 +1,4 @@
-package com.audriga.gson;
+package com.audriga.jmap.gson;
 
 import com.google.common.base.CaseFormat;
 

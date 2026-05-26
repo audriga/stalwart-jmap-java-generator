@@ -1,6 +1,6 @@
 package com.audriga.stalwartgenerator;
 
-import com.audriga.gson.SealedTypeAdapterFactory;
+import com.audriga.jmap.gson.SealedTypeAdapterFactory;
 import com.audriga.stalwartgenerator.schema.StalwartSchema;
 import com.google.common.io.MoreFiles;
 import com.google.gson.Gson;
@@ -68,7 +68,7 @@ public final class JmapStalwartGenerator {
 
         Template.BUNDLED.apply(
                 Map.of(
-                        "schemaVersion", "0.16.5",
+                        "schemaVersion", "0.16.6",
                         "pkg", config.pkg(),
                         "pkgPath", config.pkgPath()),
                 config.baseDir());
@@ -77,8 +77,9 @@ public final class JmapStalwartGenerator {
         var ctx = new Context(config.pkg());
 
         ctx.toModel(schema).forEach(classModel -> {
+            var type = classModel.generate(ctx).alwaysQualify("Get", "Set", "Query").build();
             try {
-                JavaFile.builder(ctx.pkg(), classModel.generate(ctx).build()).build().writeTo(srcDir);
+                JavaFile.builder(ctx.pkg(), type).build().writeTo(srcDir);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

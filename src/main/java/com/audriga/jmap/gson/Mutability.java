@@ -1,7 +1,7 @@
-package com.audriga.gson;
+package com.audriga.jmap.gson;
 
 public enum Mutability {
     MUTABLE,
     IMMUTABLE,
-    COMPUTED
+    SERVER_SET
 }

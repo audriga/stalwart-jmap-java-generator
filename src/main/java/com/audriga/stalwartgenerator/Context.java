@@ -86,19 +86,24 @@ public record Context(String pkg) {
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith("x:"))
-                .map(e -> switch (e.getValue()) {
-                    case StalwartObjectSchema.Multiple multiple -> new GenSealed(
-                            e.getKey(),
-                            jmapToClass(e.getKey()),
-                            multiple.variants().stream().map(this::toModel));
-                    case StalwartObjectSchema.Single single -> new GenStruct(
-                            e.getKey(),
-                            jmapToClass(e.getKey()),
-                            toModel(schema.fields().get(single.schemaName())));
-                }).map(typeModel -> switch (schema.objects().get(typeModel.schemaName())) {
-                    case StalwartObjectType.Real r ->
-                            new GenEntity(r.description(), r.permissionPrefix(), r.enterprise(), typeModel);
-                    case null, default -> typeModel;
+                .map(e -> {
+                    var entityInfo = switch (schema.objects().get(e.getKey())) {
+                        case StalwartObjectType.Real r ->
+                                new EntityInfo(r.description(), r.permissionPrefix(), r.enterprise());
+                        case null, default -> null;
+                    };
+                    return switch (e.getValue()) {
+                        case StalwartObjectSchema.Multiple multiple -> new GenSealed(
+                                e.getKey(),
+                                jmapToClass(e.getKey()),
+                                multiple.variants().stream().map(this::toModel),
+                                entityInfo);
+                        case StalwartObjectSchema.Single single -> new GenStruct(
+                                e.getKey(),
+                                jmapToClass(e.getKey()),
+                                toModel(schema.fields().get(single.schemaName())),
+                                entityInfo);
+                    };
                 });
         var enumModels = schema.enums().entrySet().stream().map(e -> new GenEnum(
                 e.getKey(),
@@ -121,11 +126,12 @@ public record Context(String pkg) {
             var javaName = escapeName(name);
             var field = entry.getValue();
             var type = field.type();
+            var javaType = type.nullable() ? Types.nullable(type.toJavaType(this)) : type.toJavaType(this);
             return new GenField(name,
                     javaName,
                     field.description(),
                     field.update(),
-                    type.toJavaType(this),
+                    javaType,
                     type.nullable(),
                     fields.defaults().get(name),
                     field.enterprise());

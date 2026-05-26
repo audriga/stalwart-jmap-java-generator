@@ -3,7 +3,7 @@
 @TagField("@type")
 package @(pkg);
 
-import com.audriga.gson.TagField;
-import com.audriga.gson.TagRepr;
-import com.audriga.gson.TagStyle;
+import com.audriga.jmap.gson.TagField;
+import com.audriga.jmap.gson.TagRepr;
+import com.audriga.jmap.gson.TagStyle;
 import rs.ltt.jmap.annotation.JmapNamespace;

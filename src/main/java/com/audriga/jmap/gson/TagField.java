@@ -1,4 +1,4 @@
-package com.audriga.gson;
+package com.audriga.jmap.gson;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -26,6 +26,6 @@ public final class Types {
     }
 
     public static ParameterizedTypeName map(TypeName key, TypeName value) {
-        return ParameterizedTypeName.get(MAP, key, value);
+        return ParameterizedTypeName.get(MAP, key.box(), value.box());
     }
 }

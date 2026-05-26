@@ -21,4 +21,8 @@ final class Annotations {
     static <A extends Annotation> Optional<A> getRecursive(RecordComponent element, Class<A> annotationClass) {
         return get(element, annotationClass).or(() -> getRecursive(element.getDeclaringRecord(), annotationClass));
     }
+
+    static <A extends Annotation> Optional<A> getTypeUse(RecordComponent element, Class<A> annotationClass) {
+        return get(element, annotationClass).or(() -> get(element.getAnnotatedType(), annotationClass));
+    }
 }

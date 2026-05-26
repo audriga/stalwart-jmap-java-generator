@@ -68,7 +68,8 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
                         throw new RuntimeException(e);
                     }
                     var flatten = c.isAnnotationPresent(Flatten.class);
-                    var allowMissing = c.isAnnotationPresent(Nullable.class) || c.isAnnotationPresent(Default.class);
+                    var allowMissing = Annotations.getTypeUse(c, Nullable.class).isPresent()
+                            || Annotations.getTypeUse(c, Default.class).isPresent();
                     return new Component(name, c.getType(), adapter, accessor, flatten, allowMissing);
                 })
                 .toList();
@@ -199,7 +200,7 @@ public class RecordTypeAdapterFactory implements TypeAdapterFactory {
 
     private static Object invoke(MethodHandle handle, Object... args) {
         try {
-            return handle.invoke(args);
+            return handle.invokeWithArguments(args);
         } catch (RuntimeException | Error e) {
             throw e;
         } catch (Throwable t) {

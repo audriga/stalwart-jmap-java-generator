@@ -2,6 +2,7 @@ package com.audriga.stalwartgenerator.schema;
 
 import com.audriga.jmap.gson.RenameTag;
 import com.audriga.stalwartgenerator.Context;
+import com.audriga.stalwartgenerator.Types;
 import com.google.common.base.CaseFormat;
 import com.google.gson.annotations.SerializedName;
 import com.palantir.javapoet.ClassName;
@@ -9,7 +10,6 @@ import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 @RenameTag(CaseFormat.LOWER_CAMEL)
@@ -99,7 +99,7 @@ public sealed interface StalwartFieldType {
             @Nullable Integer maxItems) implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return ParameterizedTypeName.get(ClassName.get(List.class), ctx.type(objectName));
+            return Types.map(TypeName.INT, ctx.type(objectName));
         }
     }
 
@@ -109,8 +109,7 @@ public sealed interface StalwartFieldType {
             @Nullable Integer maxItems) implements StalwartFieldType {
         @Override
         public TypeName toJavaType(Context ctx) {
-            return ParameterizedTypeName.get(
-                    ClassName.get(java.util.Set.class), clazz.toJavaType(ctx).box());
+            return Types.map(clazz.toJavaType(ctx), TypeName.BOOLEAN);
         }
     }
 

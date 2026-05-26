@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.RECORD_COMPONENT})
+@Target({ElementType.TYPE_USE, ElementType.TYPE})
 public @interface Default {
     String value() default "";
 }

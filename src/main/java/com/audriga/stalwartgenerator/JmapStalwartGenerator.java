@@ -1,6 +1,6 @@
 package com.audriga.stalwartgenerator;
 
-import com.audriga.jmap.gson.SealedTypeAdapterFactory;
+import com.audriga.stalwartgenerator.gson.SealedTypeAdapterFactory;
 import com.audriga.stalwartgenerator.schema.StalwartSchema;
 import com.google.common.io.MoreFiles;
 import com.google.gson.Gson;
@@ -56,6 +56,10 @@ public final class JmapStalwartGenerator {
         return bundled;
     }
 
+    public static String bundledVersion() {
+        return "0.16.10";
+    }
+
     public static void generate(Config config, StalwartSchema schema) throws IOException {
         if (config.overwrite() && Files.exists(config.baseDir())) {
             // delete everything first for a clean slate without old leftovers
@@ -65,7 +69,7 @@ public final class JmapStalwartGenerator {
 
         Template.BUNDLED.apply(
                 Map.of(
-                        "schemaVersion", "0.16.6",
+                        "schemaVersion", config.schemaVersion(),
                         "pkg", config.pkg(),
                         "pkgPath", config.pkgPath()),
                 config.baseDir());

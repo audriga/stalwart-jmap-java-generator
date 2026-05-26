@@ -1,15 +1,15 @@
 package com.audriga.stalwartgenerator.model;
 
-import com.audriga.jmap.gson.FieldMutability;
-import com.audriga.jmap.gson.Flatten;
-import com.audriga.jmap.gson.Mutability;
-import com.audriga.jmap.gson.Tag;
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
+import com.audriga.stalwartgenerator.gson.Tag;
 import com.palantir.javapoet.*;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import org.jspecify.annotations.Nullable;
+import rs.ltt.jmap.annotation.Immutable;
+import rs.ltt.jmap.annotation.Inline;
+import rs.ltt.jmap.annotation.ServerSet;
 
 public record GenSealed(
         String schemaName,
@@ -42,14 +42,13 @@ public record GenSealed(
             if (entityInfo != null) {
                 recordCtor.addParameter(ParameterSpec.builder(Types.nullable(Types.STRING), "id")
                         .addAnnotation(Override.class)
-                        .addAnnotation(AnnotationSpec.builder(FieldMutability.class)
-                                .addMember("value", "$T.$L", Mutability.class, Mutability.SERVER_SET)
-                                .build())
+                        .addAnnotation(Immutable.class)
+                        .addAnnotation(ServerSet.class)
                         .build());
             }
             if (variant.innerType != null) {
                 recordCtor.addParameter(ParameterSpec.builder(variant.innerType, "data")
-                        .addAnnotation(Flatten.class)
+                        .addAnnotation(Inline.class)
                         .build());
             }
             interfaceBuilder.addType(

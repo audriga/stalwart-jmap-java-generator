@@ -1,6 +1,6 @@
 package com.audriga.stalwartgenerator.schema;
 
-import com.audriga.jmap.gson.RenameTag;
+import com.audriga.stalwartgenerator.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 import java.util.List;
 

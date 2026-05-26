@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jmapVersion>0.9.0</jmapVersion>
+        <jmapVersion>0.10.0-SNAPSHOT</jmapVersion>
     </properties>
 
     <build>
@@ -45,7 +45,7 @@
                     <java>
                         <palantirJavaFormat>
                             <version>2.91.0</version>
-                            <formatJavadoc>true</formatJavadoc>
+                            <formatJavadoc>false</formatJavadoc>
                         </palantirJavaFormat>
                     </java>
                 </configuration>

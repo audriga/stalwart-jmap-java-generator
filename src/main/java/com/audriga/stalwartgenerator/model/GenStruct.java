@@ -2,9 +2,6 @@ package com.audriga.stalwartgenerator.model;
 
 import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
 
-import com.audriga.jmap.gson.Default;
-import com.audriga.jmap.gson.FieldMutability;
-import com.audriga.jmap.gson.Mutability;
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
 import com.palantir.javapoet.*;
@@ -12,6 +9,9 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import org.jspecify.annotations.Nullable;
+import rs.ltt.jmap.annotation.Default;
+import rs.ltt.jmap.annotation.Immutable;
+import rs.ltt.jmap.annotation.ServerSet;
 
 public record GenStruct(
         String schemaName,
@@ -34,9 +34,8 @@ public record GenStruct(
             entityInfo.apply(ctx, recordSpec, this);
             recordCtor.addParameter(ParameterSpec.builder(Types.nullable(Types.STRING), "id")
                     .addAnnotation(Override.class)
-                    .addAnnotation(AnnotationSpec.builder(FieldMutability.class)
-                            .addMember("value", "$T.$L", Mutability.class, Mutability.SERVER_SET)
-                            .build())
+                    .addAnnotation(Immutable.class)
+                    .addAnnotation(ServerSet.class)
                     .build());
             builderSpec.addField(FieldSpec.builder(String.class, "id")
                     .addAnnotation(Nullable.class)
@@ -50,14 +49,9 @@ public record GenStruct(
             if (!field.schemaName().equals(field.javaName())) {
                 paramSpec.addAnnotation(serializedName(field.schemaName()));
             }
-            if (field.update().mutability() != FieldMutability.DEFAULT) {
-                paramSpec.addAnnotation(AnnotationSpec.builder(FieldMutability.class)
-                        .addMember(
-                                "value",
-                                "$T.$L",
-                                Mutability.class,
-                                field.update().mutability())
-                        .build());
+            switch (field.update()) {
+                case immutable -> paramSpec.addAnnotation(Immutable.class);
+                case serverSet -> paramSpec.addAnnotation(ServerSet.class);
             }
             if (field.defaultValue() != null) {
                 paramSpec.addAnnotation(AnnotationSpec.builder(Default.class)

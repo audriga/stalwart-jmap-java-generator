@@ -12,6 +12,7 @@ import rs.ltt.jmap.annotation.JmapEntity;
 import rs.ltt.jmap.annotation.JmapMethod;
 import rs.ltt.jmap.common.Request;
 import rs.ltt.jmap.common.entity.Comparator;
+import rs.ltt.jmap.common.entity.Identifiable;
 import rs.ltt.jmap.common.entity.SetError;
 import rs.ltt.jmap.common.entity.filter.Filter;
 import rs.ltt.jmap.common.method.MethodCall;
@@ -26,7 +27,7 @@ import rs.ltt.jmap.common.method.response.standard.SetMethodResponse;
 public record EntityInfo(String description, String permissionPrefix, boolean enterprise) {
     public void apply(Context ctx, TypeSpec.Builder builder, GenSchemaType schemaType) {
         var selfType = ClassName.get(ctx.pkg(), schemaType.javaName());
-        builder.addSuperinterface(ClassName.get(ctx.pkg(), "StalwartIdentifiable"))
+        builder.addSuperinterface(Identifiable.class)
                 .addAnnotation(AnnotationSpec.builder(JmapEntity.class)
                         .addMember("name", "$S", schemaType.schemaName())
                         .build())

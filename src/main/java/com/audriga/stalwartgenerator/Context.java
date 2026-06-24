@@ -90,8 +90,10 @@ public record Context(String pkg) {
                 .map(e -> {
                     var entityInfo =
                             switch (schema.objects().get(e.getKey())) {
-                                case StalwartObjectType.Real r ->
-                                    new EntityInfo(r.description(), r.permissionPrefix(), r.enterprise());
+                                case StalwartObjectType.Object o ->
+                                    new EntityInfo(o.description(), o.permissionPrefix(), false, o.enterprise());
+                                case StalwartObjectType.Singleton s ->
+                                    new EntityInfo(s.description(), s.permissionPrefix(), true, s.enterprise());
                                 case null, default -> null;
                             };
                     return switch (e.getValue()) {

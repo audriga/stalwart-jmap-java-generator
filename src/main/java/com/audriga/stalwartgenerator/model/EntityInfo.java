@@ -4,7 +4,6 @@ import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
 import com.palantir.javapoet.*;
 import java.util.List;
-import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import javax.lang.model.element.Modifier;
@@ -15,8 +14,6 @@ import rs.ltt.jmap.common.entity.Comparator;
 import rs.ltt.jmap.common.entity.Identifiable;
 import rs.ltt.jmap.common.entity.SetError;
 import rs.ltt.jmap.common.entity.filter.Filter;
-import rs.ltt.jmap.common.method.MethodCall;
-import rs.ltt.jmap.common.method.MethodResponse;
 import rs.ltt.jmap.common.method.call.standard.GetMethodCall;
 import rs.ltt.jmap.common.method.call.standard.QueryMethodCall;
 import rs.ltt.jmap.common.method.call.standard.SetMethodCall;
@@ -24,7 +21,7 @@ import rs.ltt.jmap.common.method.response.standard.GetMethodResponse;
 import rs.ltt.jmap.common.method.response.standard.QueryMethodResponse;
 import rs.ltt.jmap.common.method.response.standard.SetMethodResponse;
 
-public record EntityInfo(String description, String permissionPrefix, boolean enterprise) {
+public record EntityInfo(String description, String permissionPrefix, boolean singleton, boolean enterprise) {
     public void apply(Context ctx, TypeSpec.Builder builder, GenSchemaType schemaType) {
         var selfType = ClassName.get(ctx.pkg(), schemaType.javaName());
         builder.addSuperinterface(Identifiable.class)
@@ -39,85 +36,126 @@ public record EntityInfo(String description, String permissionPrefix, boolean en
         if (enterprise) {
             builder.addJavadoc("<br>enterprise: true");
         }
-        for (var method : Method.values()) {
+        var methods = singleton ? SINGLETON_METHODS : OBJECT_METHODS;
+        for (var method : methods) {
             builder.addType(method.generate(schemaType, selfType));
         }
     }
 
-    private enum Method {
-        GET(
-                GetMethodCall.class,
-                _ -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(Types.nullable(ArrayTypeName.of(Types.STRING)), "ids"),
-                        p(Types.nullable(ArrayTypeName.of(Types.STRING)), "properties"),
-                        p(Types.nullable(ClassName.get(Request.Invocation.ResultReference.class)), "idsReference")),
-                GetMethodResponse.class,
-                entityClass -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(Types.STRING, "state"),
-                        p(ArrayTypeName.of(Types.STRING), "notFound"),
-                        p(ArrayTypeName.of(entityClass), "list"))),
-        SET(
-                SetMethodCall.class,
-                entityClass -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(Types.nullable(Types.STRING), "ifInState"),
-                        p(Types.nullable(Types.map(Types.STRING, entityClass)), "create"),
-                        p(Types.nullable(Types.map(Types.STRING, Types.map(Types.STRING, ClassName.OBJECT))), "update"),
-                        p(Types.nullable(ArrayTypeName.of(Types.STRING)), "destroy"),
-                        p(Types.nullable(ClassName.get(Request.Invocation.ResultReference.class)), "destroyReference")),
-                SetMethodResponse.class,
-                entityClass -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(Types.STRING, "oldState"),
-                        p(Types.STRING, "newState"),
-                        p(Types.map(Types.STRING, entityClass), "created"),
-                        p(Types.map(Types.STRING, entityClass), "updated"),
-                        p(ArrayTypeName.of(Types.STRING), "destroyed"),
-                        p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notCreated"),
-                        p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notUpdated"),
-                        p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notDestroyed"))),
-        QUERY(
-                QueryMethodCall.class,
-                entityClass -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(
-                                Types.nullable(ParameterizedTypeName.get(ClassName.get(Filter.class), entityClass)),
-                                "filter"),
-                        p(Types.nullable(ArrayTypeName.of(Comparator.class)), "sort"),
-                        p(Types.nullable(TypeName.LONG), "position"),
-                        p(Types.nullable(Types.STRING), "anchor"),
-                        p(Types.nullable(TypeName.LONG), "anchorOffset"),
-                        p(Types.nullable(TypeName.LONG), "limit"),
-                        p(Types.nullable(TypeName.BOOLEAN), "calculateTotal")),
-                QueryMethodResponse.class,
-                _ -> List.of(
-                        p(Types.STRING, "accountId"),
-                        p(Types.STRING, "queryState"),
-                        p(TypeName.BOOLEAN, "canCalculateChanges"),
-                        p(Types.nullable(TypeName.LONG), "position"),
-                        p(ArrayTypeName.of(Types.STRING), "ids"),
-                        p(Types.nullable(TypeName.LONG), "total"),
-                        p(Types.nullable(TypeName.LONG), "limit")));
+    private static final List<Method> OBJECT_METHODS = List.of(
+            new Method(
+                    "get",
+                    _ -> ClassName.get(GetMethodCall.class),
+                    _ -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.nullable(ArrayTypeName.of(Types.STRING)), "ids"),
+                            p(Types.nullable(ArrayTypeName.of(Types.STRING)), "properties"),
+                            p(Types.nullable(ClassName.get(Request.Invocation.ResultReference.class)), "idsReference")),
+                    _ -> ClassName.get(GetMethodResponse.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.STRING, "state"),
+                            p(ArrayTypeName.of(Types.STRING), "notFound"),
+                            p(ArrayTypeName.of(entityClass), "list"))),
+            new Method(
+                    "set",
+                    _ -> ClassName.get(SetMethodCall.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.nullable(Types.STRING), "ifInState"),
+                            p(Types.nullable(Types.map(Types.STRING, entityClass)), "create"),
+                            p(
+                                    Types.nullable(Types.map(Types.STRING, Types.map(Types.STRING, ClassName.OBJECT))),
+                                    "update"),
+                            p(Types.nullable(ArrayTypeName.of(Types.STRING)), "destroy"),
+                            p(
+                                    Types.nullable(ClassName.get(Request.Invocation.ResultReference.class)),
+                                    "destroyReference")),
+                    _ -> ClassName.get(SetMethodResponse.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.STRING, "oldState"),
+                            p(Types.STRING, "newState"),
+                            p(Types.map(Types.STRING, entityClass), "created"),
+                            p(Types.map(Types.STRING, entityClass), "updated"),
+                            p(ArrayTypeName.of(Types.STRING), "destroyed"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notCreated"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notUpdated"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notDestroyed"))),
+            new Method(
+                    "query",
+                    _ -> ClassName.get(QueryMethodCall.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(
+                                    Types.nullable(ParameterizedTypeName.get(ClassName.get(Filter.class), entityClass)),
+                                    "filter"),
+                            p(Types.nullable(ArrayTypeName.of(Comparator.class)), "sort"),
+                            p(Types.nullable(TypeName.LONG), "position"),
+                            p(Types.nullable(Types.STRING), "anchor"),
+                            p(Types.nullable(TypeName.LONG), "anchorOffset"),
+                            p(Types.nullable(TypeName.LONG), "limit"),
+                            p(Types.nullable(TypeName.BOOLEAN), "calculateTotal")),
+                    _ -> ClassName.get(QueryMethodResponse.class),
+                    _ -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.STRING, "queryState"),
+                            p(TypeName.BOOLEAN, "canCalculateChanges"),
+                            p(Types.nullable(TypeName.LONG), "position"),
+                            p(ArrayTypeName.of(Types.STRING), "ids"),
+                            p(Types.nullable(TypeName.LONG), "total"),
+                            p(Types.nullable(TypeName.LONG), "limit"))));
+    private static final List<Method> SINGLETON_METHODS = List.of(
+            new Method(
+                    "get",
+                    entityClass -> ClassName.get(entityClass.packageName(), "SingletonGetMethodCall"),
+                    _ -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.nullable(ArrayTypeName.of(Types.STRING)), "properties")),
+                    _ -> ClassName.get(GetMethodResponse.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.STRING, "state"),
+                            p(ArrayTypeName.of(Types.STRING), "notFound"),
+                            p(ArrayTypeName.of(entityClass), "list"))),
+            new Method(
+                    "set",
+                    entityClass -> ClassName.get(entityClass.packageName(), "SingletonSetMethodCall"),
+                    _ -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.nullable(Types.STRING), "ifInState"),
+                            p(Types.nullable(Types.map(Types.STRING, ClassName.OBJECT)), "update")),
+                    _ -> ClassName.get(SetMethodResponse.class),
+                    entityClass -> List.of(
+                            p(Types.STRING, "accountId"),
+                            p(Types.STRING, "oldState"),
+                            p(Types.STRING, "newState"),
+                            p(Types.map(Types.STRING, entityClass), "created"),
+                            p(Types.map(Types.STRING, entityClass), "updated"),
+                            p(ArrayTypeName.of(Types.STRING), "destroyed"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notCreated"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notUpdated"),
+                            p(Types.map(Types.STRING, ClassName.get(SetError.class)), "notDestroyed"))));
 
+    private static final class Method {
         private final String jmapName;
         private final String className;
-        private final ClassName callBaseClass;
+        private final Function<ClassName, ClassName> callBaseClass;
         private final Function<ClassName, List<ParameterSpec>> callCtor;
-        private final ClassName responseBaseClass;
+        private final Function<ClassName, ClassName> responseBaseClass;
         private final Function<ClassName, List<ParameterSpec>> responseCtor;
 
         Method(
-                Class<? extends MethodCall> callBaseClass,
+                String jmapName,
+                Function<ClassName, ClassName> callBaseClass,
                 Function<ClassName, List<ParameterSpec>> callCtor,
-                Class<? extends MethodResponse> responseBaseClass,
+                Function<ClassName, ClassName> responseBaseClass,
                 Function<ClassName, List<ParameterSpec>> responseCtor) {
-            jmapName = name().toLowerCase(Locale.ROOT);
-            className = Character.toUpperCase(jmapName.charAt(0)) + jmapName.substring(1);
-            this.callBaseClass = ClassName.get(callBaseClass);
+            this.jmapName = jmapName;
+            this.className = Character.toUpperCase(jmapName.charAt(0)) + jmapName.substring(1);
+            this.callBaseClass = callBaseClass;
             this.callCtor = callCtor;
-            this.responseBaseClass = ClassName.get(responseBaseClass);
+            this.responseBaseClass = responseBaseClass;
             this.responseCtor = responseCtor;
         }
 
@@ -127,12 +165,12 @@ public record EntityInfo(String description, String permissionPrefix, boolean en
                     .build();
             return TypeSpec.classBuilder(className)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .superclass(ParameterizedTypeName.get(callBaseClass, entityClass))
+                    .superclass(ParameterizedTypeName.get(callBaseClass.apply(entityClass), entityClass))
                     .addAnnotation(annotation)
                     .addMethod(makeCtor(callCtor, entityClass))
                     .addType(TypeSpec.classBuilder("Response")
                             .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                            .superclass(ParameterizedTypeName.get(responseBaseClass, entityClass))
+                            .superclass(ParameterizedTypeName.get(responseBaseClass.apply(entityClass), entityClass))
                             .addAnnotation(annotation)
                             .addMethod(makeCtor(responseCtor, entityClass))
                             .build())
@@ -148,9 +186,9 @@ public record EntityInfo(String description, String permissionPrefix, boolean en
             }
             return ctor.addStatement("$L", superCall.toString()).build();
         }
+    }
 
-        private static ParameterSpec p(TypeName type, String name) {
-            return ParameterSpec.builder(type, name).build();
-        }
+    private static ParameterSpec p(TypeName type, String name) {
+        return ParameterSpec.builder(type, name).build();
     }
 }

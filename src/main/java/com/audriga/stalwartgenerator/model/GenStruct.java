@@ -37,7 +37,7 @@ public record GenStruct(
                     .addAnnotation(Immutable.class)
                     .addAnnotation(ServerSet.class)
                     .build());
-            builderSpec.addField(FieldSpec.builder(String.class, "id")
+            builderSpec.addField(FieldSpec.builder(String.class, "id", Modifier.PRIVATE)
                     .addAnnotation(Nullable.class)
                     .build());
             builderSpec.addMethod(builderMethod(ctx, "id", ClassName.get(String.class)));

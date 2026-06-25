@@ -1,6 +1,7 @@
 package com.audriga.stalwartgenerator.model;
 
 import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
+import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
 import com.audriga.stalwartgenerator.Context;
 import com.palantir.javapoet.TypeSpec;
@@ -14,13 +15,13 @@ public record GenEnum(String schemaName, String javaName, Stream<GenEnumVariant>
         variants.forEach(variant -> {
             var builder = TypeSpec.anonymousClassBuilder("")
                     .addAnnotation(serializedName(variant.schemaName()))
-                    .addJavadoc("$L", variant.label());
+                    .addJavadoc("$L", htmlEscaper().escape(variant.label()));
             if (variant.explanation() != null) {
                 builder.addJavadoc("""
 
                         <p>
                         $L
-                        """, variant.explanation());
+                        """, htmlEscaper().escape(variant.explanation()));
             }
             enumBuilder.addEnumConstant(variant.javaName(), builder.build());
         });

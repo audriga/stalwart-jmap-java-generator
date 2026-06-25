@@ -1,6 +1,7 @@
 package com.audriga.stalwartgenerator.model;
 
 import static com.audriga.stalwartgenerator.JmapStalwartGenerator.serializedName;
+import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
@@ -44,8 +45,8 @@ public record GenStruct(
             ctorArgs.add("id");
         }
         fields.forEach(field -> {
-            var paramSpec =
-                    ParameterSpec.builder(field.typeName(), field.javaName()).addJavadoc("$L", field.description());
+            var paramSpec = ParameterSpec.builder(field.typeName(), field.javaName())
+                    .addJavadoc("$L", htmlEscaper().escape(field.description()));
             if (!field.schemaName().equals(field.javaName())) {
                 paramSpec.addAnnotation(serializedName(field.schemaName()));
             }
@@ -88,6 +89,7 @@ public record GenStruct(
 
     private MethodSpec builderMethod(Context ctx, String fieldName, TypeName fieldType) {
         return MethodSpec.methodBuilder(fieldName)
+                .addModifiers(Modifier.PUBLIC)
                 .returns(ClassName.get(ctx.pkg(), javaName, "Builder"))
                 .addParameter(fieldType, "value")
                 .addStatement("this.$L = value", fieldName)

@@ -1,5 +1,7 @@
 package com.audriga.stalwartgenerator.model;
 
+import static com.google.common.html.HtmlEscapers.htmlEscaper;
+
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
 import com.palantir.javapoet.*;
@@ -34,7 +36,7 @@ public record GenSealed(
             var variantBuilder = TypeSpec.recordBuilder(variant.javaName)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addSuperinterface(ctx.type(javaName))
-                    .addJavadoc("$L", variant.label)
+                    .addJavadoc("$L", htmlEscaper().escape(variant.label))
                     .addAnnotation(AnnotationSpec.builder(Type.class)
                             .addMember("value", "$S", variant.schemaName)
                             .build());

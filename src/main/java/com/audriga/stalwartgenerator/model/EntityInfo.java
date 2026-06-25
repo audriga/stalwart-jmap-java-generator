@@ -1,5 +1,7 @@
 package com.audriga.stalwartgenerator.model;
 
+import static com.google.common.html.HtmlEscapers.htmlEscaper;
+
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
 import com.palantir.javapoet.*;
@@ -28,11 +30,12 @@ public record EntityInfo(String description, String permissionPrefix, boolean si
                 .addAnnotation(AnnotationSpec.builder(JmapEntity.class)
                         .addMember("name", "$S", schemaType.schemaName())
                         .build())
-                .addJavadoc("""
+                .addJavadoc(
+                        """
                         $L
                         <p>
                         permission prefix: $L
-                        """, description, permissionPrefix);
+                        """, htmlEscaper().escape(description), htmlEscaper().escape(permissionPrefix));
         if (enterprise) {
             builder.addJavadoc("<br>enterprise: true");
         }

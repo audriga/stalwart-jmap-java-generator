@@ -28,7 +28,8 @@ public record GenStruct(
         var builderSpec =
                 TypeSpec.classBuilder("Builder").addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
-        var buildMethod = MethodSpec.methodBuilder("build").returns(selfClass);
+        var buildMethod =
+                MethodSpec.methodBuilder("build").addModifiers(Modifier.PUBLIC).returns(selfClass);
         var ctorArgs = new StringJoiner(", ");
 
         if (entityInfo != null) {

@@ -5,6 +5,7 @@ import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
 import com.audriga.stalwartgenerator.Context;
 import com.audriga.stalwartgenerator.Types;
+import com.google.gson.reflect.TypeToken;
 import com.palantir.javapoet.*;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
@@ -13,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import rs.ltt.jmap.annotation.Default;
 import rs.ltt.jmap.annotation.Immutable;
 import rs.ltt.jmap.annotation.ServerSet;
+import rs.ltt.jmap.gson.GsonUtils;
 
 public record GenStruct(
         String schemaName,
@@ -69,7 +71,23 @@ public record GenStruct(
             builderSpec
                     .addField(builderField.build())
                     .addMethod(builderMethod(ctx, field.javaName(), field.typeName()));
-            if (!field.nullable()) {
+            if (field.defaultValue() != null) {
+                var type = field.typeName();
+                var typeArg = type.isPrimitive() || type instanceof ClassName
+                        ? CodeBlock.of("$T.class", type.withoutAnnotations())
+                        : CodeBlock.of("new $T<$T>() {}", TypeToken.class, type);
+                buildMethod.addCode(
+                        """
+                        if ($L == null) {
+                            $L = $T.REGULAR_GSON.fromJson($S, $L);
+                        }
+                        """,
+                        field.javaName(),
+                        field.javaName(),
+                        GsonUtils.class,
+                        field.defaultValue().toString(),
+                        typeArg);
+            } else if (!field.nullable()) {
                 buildMethod.addCode(
                         """
                                 if ($L == null) {

@@ -5,7 +5,6 @@ import com.audriga.stalwartgenerator.gson.RenameTag;
 import com.google.common.base.CaseFormat;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.TypeName;
-import java.time.Duration;
 import org.jspecify.annotations.Nullable;
 
 @RenameTag(CaseFormat.LOWER_CAMEL)
@@ -29,10 +28,9 @@ public sealed interface StalwartMapValueType {
         @Override
         public TypeName toJavaType(Context ctx) {
             return switch (format) {
-                case integer, unsignedInteger -> TypeName.INT;
+                case integer, unsignedInteger, duration -> TypeName.INT;
                 case float_ -> TypeName.DOUBLE;
                 case size -> TypeName.LONG;
-                case duration -> TypeName.get(Duration.class);
             };
         }
     }

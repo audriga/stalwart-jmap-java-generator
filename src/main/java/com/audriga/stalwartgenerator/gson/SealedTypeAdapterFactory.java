@@ -22,15 +22,18 @@ public class SealedTypeAdapterFactory implements TypeAdapterFactory {
         var tagConverter = Annotations.getRecursive(raw, RenameTag.class)
                 .map(format -> CaseFormat.UPPER_CAMEL.converterTo(format.value()))
                 .orElse(Converter.identity());
-        var source = SumTypeAdapter.sealedClassSource(raw, sub -> {
-            var tag = Annotations.get(sub, Tag.class)
-                    .map(Tag::value)
-                    .filter(Predicate.not(String::isBlank))
-                    .orElseGet(() -> Objects.requireNonNull(tagConverter.convert(sub.getSimpleName())));
-            @SuppressWarnings("unchecked")
-            var adapter = (TypeAdapter<T>) gson.getAdapter(sub);
-            return new SumTypeAdapter.Variant<>(tag, adapter);
-        });
+        var source = SumTypeAdapter.sealedClassSource(
+                raw,
+                sub -> {
+                    var tag = Annotations.get(sub, Tag.class)
+                            .map(Tag::value)
+                            .filter(Predicate.not(String::isBlank))
+                            .orElseGet(() -> Objects.requireNonNull(tagConverter.convert(sub.getSimpleName())));
+                    @SuppressWarnings("unchecked")
+                    var adapter = (TypeAdapter<T>) gson.getAdapter(sub);
+                    return new SumTypeAdapter.Variant<>(tag, adapter);
+                },
+                null);
         if (source == null) return null;
 
         var tagStyle = Annotations.getRecursive(raw, TagStyle.class)

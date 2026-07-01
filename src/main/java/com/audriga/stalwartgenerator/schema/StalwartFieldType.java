@@ -8,7 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.ParameterizedTypeName;
 import com.palantir.javapoet.TypeName;
-import java.time.Duration;
 import java.time.Instant;
 import org.jspecify.annotations.Nullable;
 
@@ -40,10 +39,9 @@ public sealed interface StalwartFieldType {
         public TypeName toJavaType(Context ctx) {
             var name =
                     switch (format) {
-                        case integer, unsignedInteger -> TypeName.INT;
+                        case integer, unsignedInteger, duration -> TypeName.INT;
                         case float_ -> TypeName.DOUBLE;
                         case size -> TypeName.LONG;
-                        case duration -> TypeName.get(Duration.class);
                     };
             return nullable ? name.box() : name;
         }

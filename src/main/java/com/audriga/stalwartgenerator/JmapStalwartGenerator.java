@@ -57,7 +57,7 @@ public final class JmapStalwartGenerator {
     }
 
     public static String bundledVersion() {
-        return "0.16.10";
+        return "0.16.12";
     }
 
     public static void generate(Config config, StalwartSchema schema) throws IOException {

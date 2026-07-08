@@ -1,4 +1,4 @@
 @JmapNamespace("urn:stalwart:jmap")
 package @(pkg);
 
-import rs.ltt.jmap.annotation.JmapNamespace;
+import com.audriga.jmap.annotation.JmapNamespace;

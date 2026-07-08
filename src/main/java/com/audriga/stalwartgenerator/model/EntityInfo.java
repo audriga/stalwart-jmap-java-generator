@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import javax.lang.model.element.Modifier;
-import rs.ltt.jmap.annotation.JmapEntity;
-import rs.ltt.jmap.annotation.JmapMethod;
-import rs.ltt.jmap.common.Request;
-import rs.ltt.jmap.common.entity.Comparator;
-import rs.ltt.jmap.common.entity.Identifiable;
-import rs.ltt.jmap.common.entity.SetError;
-import rs.ltt.jmap.common.entity.filter.Filter;
-import rs.ltt.jmap.common.method.call.standard.GetMethodCall;
-import rs.ltt.jmap.common.method.call.standard.QueryMethodCall;
-import rs.ltt.jmap.common.method.call.standard.SetMethodCall;
-import rs.ltt.jmap.common.method.response.standard.GetMethodResponse;
-import rs.ltt.jmap.common.method.response.standard.QueryMethodResponse;
-import rs.ltt.jmap.common.method.response.standard.SetMethodResponse;
+import com.audriga.jmap.annotation.JmapEntity;
+import com.audriga.jmap.annotation.JmapMethod;
+import com.audriga.jmap.common.Request;
+import com.audriga.jmap.common.entity.Comparator;
+import com.audriga.jmap.common.entity.Identifiable;
+import com.audriga.jmap.common.entity.SetError;
+import com.audriga.jmap.common.entity.filter.Filter;
+import com.audriga.jmap.common.method.call.standard.GetMethodCall;
+import com.audriga.jmap.common.method.call.standard.QueryMethodCall;
+import com.audriga.jmap.common.method.call.standard.SetMethodCall;
+import com.audriga.jmap.common.method.response.standard.GetMethodResponse;
+import com.audriga.jmap.common.method.response.standard.QueryMethodResponse;
+import com.audriga.jmap.common.method.response.standard.SetMethodResponse;
 
 public record EntityInfo(String description, String permissionPrefix, boolean singleton, boolean enterprise) {
     public void apply(Context ctx, TypeSpec.Builder builder, GenSchemaType schemaType) {

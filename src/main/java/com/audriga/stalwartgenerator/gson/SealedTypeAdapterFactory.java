@@ -9,9 +9,9 @@ import java.lang.reflect.Modifier;
 import java.util.Objects;
 import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
-import rs.ltt.jmap.gson.Annotations;
-import rs.ltt.jmap.gson.TagRepr;
-import rs.ltt.jmap.gson.adapter.SumTypeAdapter;
+import com.audriga.jmap.gson.Annotations;
+import com.audriga.jmap.gson.TagRepr;
+import com.audriga.jmap.gson.adapter.SumTypeAdapter;
 
 public class SealedTypeAdapterFactory implements TypeAdapterFactory {
     @Override

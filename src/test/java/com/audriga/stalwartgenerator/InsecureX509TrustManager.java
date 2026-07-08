@@ -4,7 +4,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
 import okhttp3.OkHttpClient;
 import okhttp3.internal.tls.OkHostnameVerifier;
-import rs.ltt.jmap.client.Services;
+import com.audriga.jmap.client.Services;
 
 public class InsecureX509TrustManager implements X509TrustManager {
     public static final InsecureX509TrustManager INSTANCE = new InsecureX509TrustManager();

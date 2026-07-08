@@ -16,7 +16,7 @@ import java.util.*;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import rs.ltt.jmap.client.http.HttpAuthentication;
+import com.audriga.jmap.client.http.HttpAuthentication;
 
 public final class JmapStalwartGenerator {
     private static final Gson GSON = new GsonBuilder()

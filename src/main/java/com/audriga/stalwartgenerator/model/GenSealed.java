@@ -8,10 +8,10 @@ import com.palantir.javapoet.*;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import org.jspecify.annotations.Nullable;
-import rs.ltt.jmap.annotation.Immutable;
-import rs.ltt.jmap.annotation.Inline;
-import rs.ltt.jmap.annotation.ServerSet;
-import rs.ltt.jmap.annotation.Type;
+import com.audriga.jmap.annotation.Immutable;
+import com.audriga.jmap.annotation.Inline;
+import com.audriga.jmap.annotation.ServerSet;
+import com.audriga.jmap.annotation.Type;
 
 public record GenSealed(
         String schemaName,

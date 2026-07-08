@@ -22,7 +22,7 @@
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
-                            <groupId>rs.ltt.jmap</groupId>
+                            <groupId>com.audriga.jmap</groupId>
                             <artifactId>jmap-annotation-processor</artifactId>
                             <version>${jmapVersion}</version>
                         </path>
@@ -60,7 +60,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>rs.ltt.jmap</groupId>
+            <groupId>com.audriga.jmap</groupId>
             <artifactId>jmap-client</artifactId>
             <version>${jmapVersion}</version>
         </dependency>

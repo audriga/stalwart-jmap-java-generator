@@ -78,12 +78,12 @@
             <version>0.15.0</version>
         </dependency>
         <dependency>
-            <groupId>rs.ltt.jmap</groupId>
+            <groupId>com.audriga.jmap</groupId>
             <artifactId>jmap-client</artifactId>
             <version>${jmapVersion}</version>
         </dependency>
         <dependency>
-            <groupId>rs.ltt.jmap</groupId>
+            <groupId>com.audriga.jmap</groupId>
             <artifactId>jmap-annotation-processor</artifactId>
             <version>${jmapVersion}</version>
             <scope>provided</scope>

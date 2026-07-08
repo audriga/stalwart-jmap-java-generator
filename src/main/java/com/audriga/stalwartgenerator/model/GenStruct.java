@@ -11,10 +11,10 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 import javax.lang.model.element.Modifier;
 import org.jspecify.annotations.Nullable;
-import rs.ltt.jmap.annotation.Default;
-import rs.ltt.jmap.annotation.Immutable;
-import rs.ltt.jmap.annotation.ServerSet;
-import rs.ltt.jmap.gson.GsonUtils;
+import com.audriga.jmap.annotation.Default;
+import com.audriga.jmap.annotation.Immutable;
+import com.audriga.jmap.annotation.ServerSet;
+import com.audriga.jmap.gson.GsonUtils;
 
 public record GenStruct(
         String schemaName,
